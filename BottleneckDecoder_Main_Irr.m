@@ -18,6 +18,9 @@ T=16;                                                               %Denotes the
 Min=-2;
 Max=2;
 MaxIter=50;
+%%%%PARTICULAR FOR OFFSET MINSUM%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+integer_bits=4;
+fraction_bits=2;
 %% LDPC Part
 CWLength = H_Class.n;                                               % Number of bits in the code word
 CheckNum = H_Class.k;                                               % Number of information bits in the code word
@@ -43,13 +46,16 @@ for Eb_N0=2.6
 %     bp_decoder=BP_method(H_Class.H,H_Class.vari_table,H_Class.vari_degree,H_Class.check_table,H_Class.check_degree,MaxIter,CWLength,H_Class.p_flag,H_Class.p_bits);
 %     [ber_cBP(Index),fer_cBP(Index)]=bp_decoder.continuous_BP(Eb_N0,runtime,CodeRate);
     %% Discrete Message Passing Algorithm
-    ib_decoder=Lookup_Table_Method(lookup_t.check_lt,lookup_t.vari_lt,MaxIter,lookup_t.LLRTable,H_Class.H,lookup_t.vari_node_transform,...
-                                    lookup_t.check_node_transform,H_Class.dc_max,H_Class.dv_max,H_Class.p_flag,H_Class.p_bits,T);
-    ib_decoder.Parity_check_matrix_analysis();
-    [ber_IB(Index),fer_IB(Index)]=ib_decoder.Simulation(Eb_N0,runtime,Max,Min,ProbConTY,CodeRate);
+%     ib_decoder=Lookup_Table_Method(lookup_t.check_lt,lookup_t.vari_lt,MaxIter,lookup_t.LLRTable,H_Class.H,lookup_t.vari_node_transform,...
+%                                     lookup_t.check_node_transform,H_Class.dc_max,H_Class.dv_max,H_Class.p_flag,H_Class.p_bits,T);
+%     ib_decoder.Parity_check_matrix_analysis();
+%     [ber_IB(Index),fer_IB(Index)]=ib_decoder.Simulation(Eb_N0,runtime,Max,Min,ProbConTY,CodeRate);
     %% Discrete Message Passing   
 %     bp_dis_decoder=BP_method(H,VariTable,vari_degree,CheckTable,check_degree,MaxIter,CWLength);
 %     [ber3,fer3]=bp_dis_decoder.quatize_BP(Eb_N0,runtime,CodeRate,Max,Min,Obsize,ProbConTY,LLR_table);
+    %% Finite Minsum Decoder
+    FMS_decoder=BP_method(H_Class.H,H_Class.vari_table,H_Class.vari_degree,H_Class.check_table,H_Class.check_degree,MaxIter,CWLength,H_Class.p_flag,H_Class.p_bits);
+    [ber_FM(Index),fer_FM(Index)]=FMS_decoder.finite_min_sum(Eb_N0,runtime,CodeRate,integer_bits,fraction_bits) ;
     %%
     Index=Index+1;
 end
