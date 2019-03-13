@@ -1,0 +1,12 @@
+X=log2(pd_join_x_t(1,:)./pd_join_x_t(2,:));
+Y=log2(pd_join_x_z(1,:)./pd_join_x_z(2,:));
+Z=log2(pda_join_x_z(1,:)./pda_join_x_z(2,:));
+M=1:16;
+subplot(1,2,1);
+hold on;
+stem(M,X);
+stem(M,Z);
+subplot(1,2,2);
+hold on;
+stem(M,Y);
+stem(M,Z);
