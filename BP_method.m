@@ -153,8 +153,13 @@ classdef BP_method <handle
                 CodeWord=-2*trans_bits+1;                                           % Convert Binary Bits to Codeword
                 sigma2=10^(-0.1*Eb_N0)/(2*CodeRate);
                 TransCD=CodeWord+normrnd(0,sqrt(sigma2),1,cwLength);                % add noise
-                x_SB = fi(TransCD,1,integer_bits+fraction_bits,fraction_bits);
-                [quant_TranCD] = x_SB.double;
+                x_SB_neg = fi(TransCD,1,integer_bits+fraction_bits,fraction_bits,'RoundingMethod','floor');                
+                [quan_TranCD_neg] = x_SB_neg.double;
+                quan_TranCD_neg(quan_TranCD_neg>0)=0;
+                x_SB_pos = fi(TransCD,1,integer_bits+fraction_bits,fraction_bits,'RoundingMethod','ceiling');
+                [quan_TranCD_pos] = x_SB_pos.double;
+                quan_TranCD_pos(quan_TranCD_pos<0)=0;
+                quan_TranCD=quan_TranCD_neg+quan_TranCD_pos;
                 if P_flag==1
                     quan_TranCD(1:P_bits)=0;
                 end
@@ -190,7 +195,10 @@ classdef BP_method <handle
                         VarNode=VnodesC(jj);        %%Variable Node connected by C
                         Neighbors=VnodesC;
                         Neighbors(jj)=[];           %% delete itself
-                        MsgC2V(ii,VarNode)=max(min(abs(MsgV2C(ii,Neighbors))-0.5,0))*prod(sign(MsgV2C(ii,Neighbors)));
+                        MsgC2V(ii,VarNode)=max(min(abs(MsgV2C(ii,Neighbors))),0.25)*prod(sign(MsgV2C(ii,Neighbors)));
+                        if MsgC2V(ii,VarNode)==0
+                            a=1;
+                        end
                     end
                 end
                 %% VN->CN Message Passing
@@ -202,11 +210,22 @@ classdef BP_method <handle
                         CheNode=CNodesV(jj);
                         Neighbors=CNodesV;
                         Neighbors(jj)=[];
-                        MsgV2C(CheNode,ii)=Quantize( sum(MsgC2V(Neighbors,ii))+PostLLR(ii),integer_bits, fraction_bits);
+                        MsgV2C(CheNode,ii)= sum(MsgC2V(Neighbors,ii))+PostLLR(ii); 
+                        if MsgV2C(CheNode,ii)>= 7.75
+                            MsgV2C(CheNode,ii)=7.75;
+                        elseif MsgV2C(CheNode,ii)< -8.75
+                            MsgV2C(CheNode,ii)= -8.75;
+                        end
+                        if  MsgV2C(CheNode,ii)==0
+                            a=1;
+                        end
                     end
                 end
-                LLRTotal=Quantize(   PostLLR+sum(MsgC2V),integer_bits, fraction_bits);
+
                 %% Bit Dicision
+                LLRTotal=PostLLR+sum(MsgC2V);
+                LLRTotal(LLRTotal>7.75)=7.75;
+                LLRTotal(LLRTotal<-8.75)=-8.75;
                 FinalBits=zeros(1,VNum);
                 for ii=1:VNum
                     LLR=LLRTotal(ii);
