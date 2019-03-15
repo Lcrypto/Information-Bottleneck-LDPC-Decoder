@@ -166,6 +166,7 @@ classdef Lookup_Table_Method<handle
                         end
                     end
                     %%%%%%%%%%%%%%%%
+                    FinalDisOutput(ii)=FirNum;
                 end
                 subplot(1,2,1);
                 histogram(FinalDisOutput);

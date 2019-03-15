@@ -2,10 +2,10 @@
 clc;
 clear;
 %% Initialization
-load('R08-E20-T16-0');
+load('R08-E21-T16-0');
 load('H_08')
 T=16;                                                   %Denotes the clustering size
-MaxRun=50;
+MaxRun=30;
 Min=-2;
 Max=2;                                                 % Number of 1's in each row of Matrix H
 MaxIter=50;

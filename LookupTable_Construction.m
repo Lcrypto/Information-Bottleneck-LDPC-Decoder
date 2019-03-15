@@ -65,9 +65,10 @@ classdef LookupTable_Construction<handle
                     [VMapping(S,jj),Vluster(S,jj),VProbJoinXT1] = BVNO( VProbJoinXT1,CProbJoinXT1_da,obj.T,MaxRun);
                     zero_msg_ali_table=zeros(3,obj.T);
                     zero_msg_ali_table(1,:)=1:obj.T;
-                    [~,zero_msg_ali_table(2,:)]= message_alignment( left,VProbJoinXT1,obj.T);       %%left is input
-                    [~,zero_msg_ali_table(3,:)]= message_alignment( right,VProbJoinXT1,obj.T);      %%right is input
+                    [ pd_join_x_z_left,zero_msg_ali_table(2,:)]= message_alignment( left,VProbJoinXT1,obj.T);       %%left is input
+                    [ pd_join_x_z_right,zero_msg_ali_table(3,:)]= message_alignment( right,VProbJoinXT1,obj.T);      %%right is input
                     Vari_zeromsg_alin_table(:,:,jj)=zero_msg_ali_table;
+                    VProbJoinXT1=0.99*VProbJoinXT1+0.005*pd_join_x_z_left+0.005*pd_join_x_z_right;
                 end
                 obj.vari_zeromsg_alin_table{1,S}=Vari_zeromsg_alin_table;
                 %%%% Message AliPart
