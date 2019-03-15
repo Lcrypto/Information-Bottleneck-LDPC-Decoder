@@ -21,6 +21,7 @@ classdef LookupTable_Construction<handle
         vari_lt;
         check_lt;
         LLRTable;
+        vari_zeromsg_alin_table;
         
     end
     
@@ -40,6 +41,7 @@ classdef LookupTable_Construction<handle
             obj.averaged_distribution_withoutAL_c=zeros(2,obj.T,obj.MaxIter);
             obj.check_node_transform=zeros(length(obj.check_distri_vec),obj.T,obj.MaxIter);
             obj.vari_node_transform=zeros(length(obj.vari_distri_vec),obj.T,obj.MaxIter);
+            obj.vari_zeromsg_alin_table=cell(1,MaxIter);
         end
         
         function [CMapping,VMapping]=Mapping_Construction (obj,MaxRun)
@@ -51,31 +53,32 @@ classdef LookupTable_Construction<handle
                     [CMapping(S,ii),CCluster(S,ii),CProbJoinXT1] = BCNO( CProbJoinXT1,CProbJoinXT2,obj.T,MaxRun);
                 end
                 %%%% Message Alignment Part
-                [ new_Cmapping,pda_join_x_z,obj.check_node_transform(:,:,S)] = ckeck_node_message_aligen( CMapping(S,:),obj.check_distri_vec,obj.T );
-                [ obj.averaged_distribution_withAL_c(:,:,S) ] = average_distribution( obj.check_distri_vec,new_Cmapping,0,obj.T);
-                [ Cost_withAL_c ] = additional_mi( obj.check_distri_vec,new_Cmapping,0,obj.averaged_distribution_withAL_c(:,:,S) ,obj.T );
-                [ obj.averaged_distribution_withoutAL_c(:,:,S) ] = average_distribution( obj.check_distri_vec,CMapping(S,:),0,obj.T);
-                [ Cost_withoutAL_c ] = additional_mi( obj.check_distri_vec,CMapping(S,:),0,obj.averaged_distribution_withoutAL_c(:,:,S),obj.T );
-                [cost_dif_c(S)]=Cost_withoutAL_c-Cost_withAL_c;
+                [ ~,pda_join_x_z,obj.check_node_transform(:,:,S)] = ckeck_node_message_aligen( CMapping(S,:),obj.check_distri_vec,obj.T );
+                %[ obj.averaged_distribution_withAL_c(:,:,S) ] = average_distribution( obj.check_distri_vec,new_Cmapping,0,obj.T);
                 VProbJoinXT1=obj.ChannelCluster;
-                CProbJoinXT1_da=obj.averaged_distribution_withAL_c(:,:,S);
+                CProbJoinXT1_da=pda_join_x_z;
+                Vari_zeromsg_alin_table=zeros(3,obj.T,obj.dv_max);
                 %%%%
                 for jj=1:obj.dv_max
+                    left=VProbJoinXT1;
+                    right=CProbJoinXT1_da;
                     [VMapping(S,jj),Vluster(S,jj),VProbJoinXT1] = BVNO( VProbJoinXT1,CProbJoinXT1_da,obj.T,MaxRun);
+                    zero_msg_ali_table=zeros(3,obj.T);
+                    zero_msg_ali_table(1,:)=1:obj.T;
+                    [~,zero_msg_ali_table(2,:)]= message_alignment( left,VProbJoinXT1,obj.T);       %%left is input
+                    [~,zero_msg_ali_table(3,:)]= message_alignment( right,VProbJoinXT1,obj.T);      %%right is input
+                    Vari_zeromsg_alin_table(:,:,jj)=zero_msg_ali_table;
                 end
+                obj.vari_zeromsg_alin_table{1,S}=Vari_zeromsg_alin_table;
                 %%%% Message AliPart
-                [ new_Cmapping,pda_join_x_z,obj.vari_node_transform(:,:,S)] = vari_node_message_aligen( VMapping(S,:),obj.vari_distri_vec,obj.T );
-                [ obj.averaged_distribution_withAL_v(:,:,S) ] = average_distribution( obj.vari_distri_vec,new_Cmapping,1,obj.T);
-                [ obj.averaged_distribution_withoutAL_v(:,:,S) ] = average_distribution( obj.vari_distri_vec,VMapping(S,:),1,obj.T);
-                [ Cost_withAL_v ] = additional_mi( obj.vari_distri_vec,new_Cmapping,1,obj.averaged_distribution_withAL_v(:,:,S),obj.T );
-                [ Cost_withoutAL_v ] = additional_mi( obj.vari_distri_vec,VMapping(S,:),1, obj.averaged_distribution_withoutAL_v(:,:,S),obj.T );
-                [cost_dif_v(S)]=Cost_withAL_v-Cost_withoutAL_v;
-                CProbJoinXT1=obj.averaged_distribution_withAL_v(:,:,S);
+                [ ~,pda_join_x_z,obj.vari_node_transform(:,:,S)] = vari_node_message_aligen( VMapping(S,:),obj.vari_distri_vec,obj.T );
+                CProbJoinXT1=pda_join_x_z;
                 CProbJoinXT2=CProbJoinXT1;
                 display(num2str(S));
             end
             obj.cmapping=CMapping;
             obj.vmapping=VMapping;
+            
             
         end
         

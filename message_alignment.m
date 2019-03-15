@@ -1,4 +1,4 @@
-function [ pd_join_x_z,pd_z_given_t ] = message_alignment( pd_join_x_t,pda_join_x_z,T)
+function [ pd_join_x_z,t_z_transform ] = message_alignment( pd_join_x_t,pda_join_x_z,T)
 %This function is a elementary operation of message_alignment
 %Input:     pd_join_x_t         The Pd(X,T) that needs to be aligned
 %           pda_join_x_z        Currerntly Averageed Pd(X,Z)
@@ -34,5 +34,9 @@ if check_time == T/2-1
 end
 pd_z_given_t(:,T/2+1:end)=rot90(pd_z_given_t(:,1:T/2),2);
 pd_join_x_z=pd_join_x_t*pd_z_given_t;
+t_z_transform=zeros(1,T);
+for kk=1:T
+    t_z_transform(kk)=find(pd_z_given_t(kk,:)==1);
+end
 end
 

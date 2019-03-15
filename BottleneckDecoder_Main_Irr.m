@@ -6,7 +6,7 @@ clear;
 % load('ChannelCluster_10_to_18');
 % load('80211_irr_648_1296_lookuptable_design07');
 load('H_08');
-load('LT-PBRL-R08-E21-T16-0');
+load('LT-PBRL-R08-E20-T16-0');
 load('R08-E0226-T16-0');
 %  load('80211_irr_648_1296');
 %  load('LT-80211-R05-E07-T18-1');
@@ -22,8 +22,6 @@ MaxIter=50;
 CWLength = H_Class.n;                                               % Number of bits in the code word
 CheckNum = H_Class.k;                                               % Number of information bits in the code word
 CodeRate=H_Class.CodeRate;
-%  H_Class.p_flag=0;
-%  H_Class.p_bits=0;
 %%%% Construct Final LLR Table
 
 %%
@@ -44,7 +42,7 @@ for Eb_N0=2.6
 %     [ber_cBP(Index),fer_cBP(Index)]=bp_decoder.continuous_BP(Eb_N0,runtime,CodeRate);
     %% Discrete Message Passing Algorithm
     ib_decoder=Lookup_Table_Method(lookup_t.check_lt,lookup_t.vari_lt,MaxIter,lookup_t.LLRTable,H_Class.H,lookup_t.vari_node_transform,...
-                                    lookup_t.check_node_transform,H_Class.dc_max,H_Class.dv_max,H_Class.p_flag,H_Class.p_bits,T);
+                                    lookup_t.check_node_transform,H_Class.dc_max,H_Class.dv_max,H_Class.p_flag,H_Class.p_bits,T,lookup_t.vari_zeromsg_alin_table);
     ib_decoder.Parity_check_matrix_analysis();
     [ber_IB(Index),fer_IB(Index)]=ib_decoder.Simulation(Eb_N0,runtime,Max,Min,ProbConTY,CodeRate);
     %% Discrete Message Passing   

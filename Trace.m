@@ -1,4 +1,4 @@
-function [  FirNum  ] = Trace( Combinations, lookuptable,flag )
+function [  FirNum  ] = Trace( Combinations, lookuptable)
 
 %UNTITLED10 Summary of this function goes here
 %   flag: variable node or check node 
@@ -8,15 +8,6 @@ function [  FirNum  ] = Trace( Combinations, lookuptable,flag )
 for ii=1:length(Combinations)-1   
     SecNum=Combinations(ii+1);
     current_lt=lookuptable{ii};
-    if FirNum~=0&&SecNum~=0
-        [FirNum]=current_lt(FirNum,SecNum);
-    else
-        if flag==0
-            FirNum=0;
-        else
-            FirNum=FirNum+SecNum;
-        end
-    end
-        
+    [FirNum]=current_lt(FirNum,SecNum);        
 end 
 

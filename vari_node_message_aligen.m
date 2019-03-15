@@ -26,15 +26,9 @@ state_vec(base_degree)=1;
 for ii=1:length(node_distri)
     if(node_distri(ii)~=0&&ii~=base_degree)
         state_vec(ii)=2;     %Update state_vec
-        [ pd_join_x_z,pd_z_given_t ] = message_alignment( Vmapping(ii-1).NProbJoinXT,pda_join_x_z,T);
-        [ pd_z_given_y ] = mapping_update( pd_z_given_t,Vmapping(ii-1).ProbConTT1T2 );
+        [ pd_join_x_z,t_z_transform(ii,:) ] = message_alignment( Vmapping(ii-1).NProbJoinXT,pda_join_x_z,T);
         [ pda_join_x_z ] = average_update( pd_join_x_z,pda_join_x_z,state_vec,node_distri );    %update Pda(X,Z)
         state_vec(ii)=1;    %%Since it has been aligned, stste is turned into 1
-        new_Vmapping(ii-1).NProbJoinXT=pd_join_x_z;     %update new_cmapping
-        new_Vmapping(ii-1).ProbConTT1T2=pd_z_given_y;   %update new_cmapping
-        for kk=1:T
-            t_z_transform(ii,kk)=find(pd_z_given_t(kk,:)==1);
-        end
     end
 end
 
