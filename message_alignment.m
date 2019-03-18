@@ -35,7 +35,7 @@ end
 pd_z_given_t(:,T/2+1:end)=rot90(pd_z_given_t(:,1:T/2),2);
 pd_join_x_z=pd_join_x_t*pd_z_given_t;
 for kk=1:T
-    t_z_transform(kk)=find(pd_z_given_t(kk,:)==1);
+    t_z_transform(kk)=find(pd_z_given_t(kk,:)==1); %#ok<AGROW>
 end
 end
 

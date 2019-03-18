@@ -173,7 +173,9 @@ classdef Lookup_Table_Method<handle
                 xlim([0 18]);
                 ylim([0 10000])
                 subplot(1,2,2);
-                plot(FinalDisOutput);                
+                plot(FinalDisOutput);  
+                title(num2str(ss));
+                pause(0.05);
                 [FinalBits_R3] =IB_bitdiscit_decision(obj.LLRTable, FinalDisOutput,obj.vari_degree);   
                 if(sum(FinalBits_R3~=trans_bits)==0)
                     break;

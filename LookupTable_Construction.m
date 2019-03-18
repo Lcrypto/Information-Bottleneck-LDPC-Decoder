@@ -22,12 +22,13 @@ classdef LookupTable_Construction<handle
         check_lt;
         LLRTable;
         vari_zeromsg_alin_table;
+        puncrate_c;
         
     end
     
     
     methods
-        function obj = LookupTable_Construction(check_distri_vec,vari_distri_vec,ChannelCluster,MaxIter,dc_max,dv_max,T)
+        function obj = LookupTable_Construction(check_distri_vec,vari_distri_vec,ChannelCluster,MaxIter,dc_max,dv_max,T,puncrate_c)
             obj.check_distri_vec=check_distri_vec;
             obj.vari_distri_vec=vari_distri_vec;
             obj.ChannelCluster=ChannelCluster;
@@ -42,22 +43,34 @@ classdef LookupTable_Construction<handle
             obj.check_node_transform=zeros(length(obj.check_distri_vec),obj.T,obj.MaxIter);
             obj.vari_node_transform=zeros(length(obj.vari_distri_vec),obj.T,obj.MaxIter);
             obj.vari_zeromsg_alin_table=cell(1,MaxIter);
+            obj.puncrate_c=puncrate_c;
         end
         
         function [CMapping,VMapping]=Mapping_Construction (obj,MaxRun)
 
             CProbJoinXT1=obj.ChannelCluster;
-            CProbJoinXT2=CProbJoinXT1;            
+            puncrate_c_XT1=obj.puncrate_c;
+            CProbJoinXT2=CProbJoinXT1;   
+            puncrate_c_XT2=puncrate_c_XT1;
             for S=1:obj.MaxIter
+                %%%% Check Part
+                puncrate_C=zeros(1,obj.dc_max-2);
                 for ii=1:obj.dc_max-2
                     [CMapping(S,ii),CCluster(S,ii),CProbJoinXT1] = BCNO( CProbJoinXT1,CProbJoinXT2,obj.T,MaxRun);
+                     puncrate_c_XT1=1-(1-puncrate_c_XT1)*(1-puncrate_c_XT2);
+                     puncrate_C(ii)=puncrate_c_XT1;
                 end
-                %%%% Message Alignment Part
+                %%%% Check Node ----Message Alignment Part
                 [ ~,pda_join_x_z,obj.check_node_transform(:,:,S)] = ckeck_node_message_aligen( CMapping(S,:),obj.check_distri_vec,obj.T );
-                %[ obj.averaged_distribution_withAL_c(:,:,S) ] = average_distribution( obj.check_distri_vec,new_Cmapping,0,obj.T);
+                Ave_Punc_Rate=sum([0 0 puncrate_C].*obj.check_distri_vec);
+                %%%%%%%
+                %%%%%%%Variable Part
                 VProbJoinXT1=obj.ChannelCluster;
-                CProbJoinXT1_da=pda_join_x_z;
+                puncrate_v_VXT1= obj.puncrate_c;
+                CProbJoinXT1_da= pda_join_x_z;
+                puncrate_v_CXT1= Ave_Punc_Rate;
                 Vari_zeromsg_alin_table=zeros(3,obj.T,obj.dv_max);
+                puncrate_v=zeros(1,obj.dv_max);
                 %%%%
                 for jj=1:obj.dv_max
                     left=VProbJoinXT1;
@@ -68,13 +81,19 @@ classdef LookupTable_Construction<handle
                     [ pd_join_x_z_left,zero_msg_ali_table(2,:)]= message_alignment( left,VProbJoinXT1,obj.T);       %%left is input
                     [ pd_join_x_z_right,zero_msg_ali_table(3,:)]= message_alignment( right,VProbJoinXT1,obj.T);      %%right is input
                     Vari_zeromsg_alin_table(:,:,jj)=zero_msg_ali_table;
-                    VProbJoinXT1=0.99*VProbJoinXT1+0.005*pd_join_x_z_left+0.005*pd_join_x_z_right;
+                    VProbJoinXT1=(1-puncrate_v_VXT1)*(1-puncrate_v_CXT1)*VProbJoinXT1+(1-puncrate_v_VXT1)*puncrate_v_CXT1*pd_join_x_z_left+(1-puncrate_v_CXT1)*puncrate_v_VXT1*pd_join_x_z_right;
+                    VProbJoinXT1=VProbJoinXT1./sum(sum(VProbJoinXT1));
+                    puncrate_v_VXT1=puncrate_v_VXT1*puncrate_v_CXT1;
+                    puncrate_v(jj)=puncrate_v_VXT1;
                 end
                 obj.vari_zeromsg_alin_table{1,S}=Vari_zeromsg_alin_table;
                 %%%% Message AliPart
                 [ ~,pda_join_x_z,obj.vari_node_transform(:,:,S)] = vari_node_message_aligen( VMapping(S,:),obj.vari_distri_vec,obj.T );
+                ave_punc_v=sum([0 puncrate_v(1:obj.dv_max-1)].*obj.vari_distri_vec);
                 CProbJoinXT1=pda_join_x_z;
+                puncrate_c_XT1=ave_punc_v;
                 CProbJoinXT2=CProbJoinXT1;
+                puncrate_c_XT2=puncrate_c_XT1;
                 display(num2str(S));
             end
             obj.cmapping=CMapping;
