@@ -12,17 +12,14 @@ classdef LookupTable_Construction<handle
         dv_max;
         cmapping;
         vmapping;
-        averaged_distribution_withAL_v;
-        averaged_distribution_withoutAL_v;
-        averaged_distribution_withAL_c;
-        averaged_distribution_withoutAL_c;
         check_node_transform;
         vari_node_transform;
         vari_lt;
+        p_vari_lt;
         check_lt;
         LLRTable;
-        vari_zeromsg_alin_table;
         puncrate_c;
+        channel_mapping_matrix;
         
     end
     
@@ -36,70 +33,45 @@ classdef LookupTable_Construction<handle
             obj.T=T;
             obj.dc_max=dc_max;
             obj.dv_max=dv_max;
-            obj.averaged_distribution_withAL_v=zeros(2,obj.T,obj.MaxIter);
-            obj.averaged_distribution_withoutAL_v=zeros(2,obj.T,obj.MaxIter);
-            obj.averaged_distribution_withAL_c=zeros(2,obj.T,obj.MaxIter);
-            obj.averaged_distribution_withoutAL_c=zeros(2,obj.T,obj.MaxIter);
             obj.check_node_transform=zeros(length(obj.check_distri_vec),obj.T,obj.MaxIter);
-            obj.vari_node_transform=zeros(length(obj.vari_distri_vec),obj.T,obj.MaxIter);
-            obj.vari_zeromsg_alin_table=cell(1,MaxIter);
+            obj.vari_node_transform=zeros(size(obj.vari_distri_vec,2),obj.T,obj.MaxIter);
             obj.puncrate_c=puncrate_c;
+            obj.channel_mapping_matrix=zeros(obj.MaxIter,obj.T);
+            obj.p_vari_lt=zeros(obj.MaxIter,obj.T);
         end
         
         function [CMapping,VMapping]=Mapping_Construction (obj,MaxRun)
 
             CProbJoinXT1=obj.ChannelCluster;
-            puncrate_c_XT1=obj.puncrate_c;
             CProbJoinXT2=CProbJoinXT1;   
-            puncrate_c_XT2=puncrate_c_XT1;
             for S=1:obj.MaxIter
                 %%%% Check Part
-                puncrate_C=zeros(1,obj.dc_max-2);
                 for ii=1:obj.dc_max-2
-                    [CMapping(S,ii),CCluster(S,ii),CProbJoinXT1] = BCNO( CProbJoinXT1,CProbJoinXT2,obj.T,MaxRun);
-                     puncrate_c_XT1=1-(1-puncrate_c_XT1)*(1-puncrate_c_XT2);
-                     puncrate_C(ii)=puncrate_c_XT1;
+                    [CMapping(S,ii),~,CProbJoinXT1] = BCNO( CProbJoinXT1,CProbJoinXT2,obj.T,MaxRun);
                 end
                 %%%% Check Node ----Message Alignment Part
                 [ ~,pda_join_x_z,obj.check_node_transform(:,:,S)] = ckeck_node_message_aligen( CMapping(S,:),obj.check_distri_vec,obj.T );
-                Ave_Punc_Rate=sum([0 0 puncrate_C].*obj.check_distri_vec);
-                %%%%%%%
                 %%%%%%%Variable Part
                 VProbJoinXT1=obj.ChannelCluster;
-                puncrate_v_VXT1= obj.puncrate_c;
                 CProbJoinXT1_da= pda_join_x_z;
-                puncrate_v_CXT1= Ave_Punc_Rate;
-                Vari_zeromsg_alin_table=zeros(3,obj.T,obj.dv_max);
-                puncrate_v=zeros(1,obj.dv_max);
                 %%%%
                 for jj=1:obj.dv_max
-                    left=VProbJoinXT1;
-                    right=CProbJoinXT1_da;
-                    [VMapping(S,jj),Vluster(S,jj),VProbJoinXT1] = BVNO( VProbJoinXT1,CProbJoinXT1_da,obj.T,MaxRun);
-                    zero_msg_ali_table=zeros(3,obj.T);
-                    zero_msg_ali_table(1,:)=1:obj.T;
-                    [ pd_join_x_z_left,zero_msg_ali_table(2,:)]= message_alignment( left,VProbJoinXT1,obj.T);       %%left is input
-                    [ pd_join_x_z_right,zero_msg_ali_table(3,:)]= message_alignment( right,VProbJoinXT1,obj.T);      %%right is input
-                    Vari_zeromsg_alin_table(:,:,jj)=zero_msg_ali_table;
-                    VProbJoinXT1=(1-puncrate_v_VXT1)*(1-puncrate_v_CXT1)*VProbJoinXT1+(1-puncrate_v_VXT1)*puncrate_v_CXT1*pd_join_x_z_left+(1-puncrate_v_CXT1)*puncrate_v_VXT1*pd_join_x_z_right;
-                    VProbJoinXT1=VProbJoinXT1./sum(sum(VProbJoinXT1));
-                    puncrate_v_VXT1=puncrate_v_VXT1*puncrate_v_CXT1;
-                    puncrate_v(jj)=puncrate_v_VXT1;
+                    [VMapping(S,jj),~,VProbJoinXT1] = BVNO( VProbJoinXT1,CProbJoinXT1_da,obj.T,MaxRun);
+                    %%% need punctured information in the first lookuptable
+                    %%% every first time  
+                    if jj==1
+                        [ aligned_prob_join_x_t,obj.p_vari_lt(ii,:) ] = message_alignment( CProbJoinXT1_da,VProbJoinXT1,obj.T);
+                        VProbJoinXT1=(1-obj.puncrate_c)*VProbJoinXT1+obj.puncrate_c*aligned_prob_join_x_t;
+                    end
                 end
-                obj.vari_zeromsg_alin_table{1,S}=Vari_zeromsg_alin_table;
                 %%%% Message AliPart
-                [ ~,pda_join_x_z,obj.vari_node_transform(:,:,S)] = vari_node_message_aligen( VMapping(S,:),obj.vari_distri_vec,obj.T );
-                ave_punc_v=sum([0 puncrate_v(1:obj.dv_max-1)].*obj.vari_distri_vec);
+                [ ~,pda_join_x_z,obj.vari_node_transform(:,:,S)] = vari_node_message_aligen( VMapping(S,:),obj.ChannelCluster,obj.vari_distri_vec(S,:),obj.T );
                 CProbJoinXT1=pda_join_x_z;
-                puncrate_c_XT1=ave_punc_v;
                 CProbJoinXT2=CProbJoinXT1;
-                puncrate_c_XT2=puncrate_c_XT1;
                 display(num2str(S));
             end
             obj.cmapping=CMapping;
-            obj.vmapping=VMapping;
-            
-            
+            obj.vmapping=VMapping;         
         end
         
         function [vari_lt,check_lt]=lt_construction(obj,CMapping,VMapping)            
@@ -136,8 +108,7 @@ classdef LookupTable_Construction<handle
             grid on;                                 
         end
         
-        function LLR_Table(obj)
-           
+        function LLR_Table(obj)           
             for ii=1:obj.dv_max
                 obj.LLRTable(ii,:)=log((obj.vmapping(obj.MaxIter,ii).NProbJoinXT(1,:))./(obj.vmapping(obj.MaxIter,ii).NProbJoinXT(2,:)));
             end
@@ -153,47 +124,7 @@ classdef LookupTable_Construction<handle
                 pause(0.1);
             end            
         end
-        
-        function transform_modi (obj)
-            %obj.T=obj.T+2;
-            [row,col,pp]=size(obj.vari_node_transform);
-            Vari_node_transform=zeros(row,col+2,pp);            
-            for kk=1:pp
-                Vari_node_transform(:,:,kk)=obj.trans_change(obj.vari_node_transform(:,:,kk),16);
-            end  
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            [row,col,pp]=size(obj.check_node_transform);
-            Check_node_transform=zeros(row,col+2,pp);
-            for kk=1:pp
-                Check_node_transform(:,:,kk)=obj.trans_change(obj.check_node_transform(:,:,kk),16);
-            end
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            obj.vari_node_transform=Vari_node_transform;
-            obj.check_node_transform=Check_node_transform;
-            
-        end
-        
-        function [new_matrix]=trans_change (obj,matrix,T)
-            [row,col]=size(matrix);
-            matrix=[matrix(:,1:T/2) (T/2+1)*ones(row,1) (T/2+2)*ones(row,1) matrix(:,T/2+1:end)];
-            for ii=1:row
-                for jj=1:col+2
-                    if (jj~=T/2+1 && jj~=T/2+2)
-                        if (matrix(ii,jj)>T/2)
-                            matrix(ii,jj)=matrix(ii,jj)+2;
-                        end
-                    end
-                end
-            end
-            new_matrix=matrix;
-        end
-        
-        function LLR_modi(obj)
-            [row,col]=size(obj.LLRTable);
-            
-            new_llr_table=[obj.LLRTable(:,1:col/2) zeros(row,2) obj.LLRTable(:,col/2+1:end)];
-            obj.LLRTable=new_llr_table;
-        end
+                
     end
     
 end

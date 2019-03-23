@@ -7,7 +7,7 @@ clear;
 % load('80211_irr_648_1296_lookuptable_design07');
 load('H_08');
 load('LT-PBRL-R08-E21-T16-0');
-load('R08-E28-T16-0');
+load('R08-E27-T16-0');
 %  load('80211_irr_648_1296');
 %  load('LT-80211-R05-E07-T18-1');
 %  load('R05-E0118-T18-1');

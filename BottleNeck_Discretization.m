@@ -4,7 +4,7 @@ clear;
 %% Initialization
 %% Initialization
 CodeRate=0.8;
-T=16;               %Denotes the clustering size
+T=4;               %Denotes the clustering size
 Obsize=2000;        %Observation Size
 %%%%%Special for LLR=0
  LLR0_vec=zeros(2,Obsize);
