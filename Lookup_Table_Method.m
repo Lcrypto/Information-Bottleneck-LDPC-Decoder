@@ -16,6 +16,7 @@ classdef Lookup_Table_Method<handle
         p_bits;
         T;
         vari_zeromsg_alin_tab;
+        p_vari_lt;
     end
     properties (SetAccess=private)
         CheckTable=[];     %%Check Node Table
@@ -31,7 +32,7 @@ classdef Lookup_Table_Method<handle
 
     
     methods
-        function obj = Lookup_Table_Method(check_lt,vari_lt,max_iteration,LLR_Table,H,vari_node_transform,check_node_transform,dc_max,dv_max,p_flag,p_bits,T,vari_zeromsg_alin_tab)
+        function obj = Lookup_Table_Method(check_lt,vari_lt,max_iteration,LLR_Table,H,vari_node_transform,check_node_transform,dc_max,dv_max,p_flag,p_bits,T,p_vari_lt)
             %UNTITLED Construct an instance of this class
             %   Initialization                       
             obj.check_lt=check_lt;
@@ -41,13 +42,12 @@ classdef Lookup_Table_Method<handle
             obj.H=H;
             obj.vari_node_transform=vari_node_transform;
             obj.check_node_transform=check_node_transform;
-            obj.vari_zeromsg_alin_tab=vari_zeromsg_alin_tab;
             obj.dc_max=dc_max;
             obj.dv_max=dv_max;
             obj.p_bits=p_bits;
             obj.p_flag=p_flag;
             obj.T=T;  
-            
+            obj.p_vari_lt=p_vari_lt;
         end
         
         function  Parity_check_matrix_analysis(obj)
@@ -85,7 +85,6 @@ classdef Lookup_Table_Method<handle
             for ss=1:obj.Max_Iteration
                 Vari_node_transform=obj.vari_node_transform(:,:,ss);
                 Check_node_transform=obj.check_node_transform(:,:,ss);
-                Vari_zeromsg_alin_table=obj.vari_zeromsg_alin_tab{1,ss};
                 %% c -> v
                 for ii =1:obj.CheckNum                      %%Note: ii is the index of check node
                     Dc=obj.check_degree(ii);
@@ -113,31 +112,34 @@ classdef Lookup_Table_Method<handle
                     Dv=obj.vari_degree(ii);
                     CNodesV=obj.VariTable(ii,1:Dv);
                     lookuptable_v=obj.vari_lt(ss,1:Dv-1);
+                    if ii> 3000
+                        a=1;
+                    end
                     for jj=1:Dv
                         CheNode=CNodesV(jj);
                         Neighbors=CNodesV;
                         Neighbors(jj)=[];
-                        Neighbor_Cluster=[QuanChan(ii) obj.C2VTable(Neighbors,ii).'];
+                        edge_msg=obj.C2VTable(Neighbors,ii).';
+                        edge_msg(edge_msg==0)=[];
+                        virtual_Dv=length(edge_msg)+1;
+                        Neighbor_Cluster=[QuanChan(ii) edge_msg];
                         %%%%%%%VariTrace
                         FirNum=Neighbor_Cluster(1);
-                        for step=1:length(Neighbor_Cluster)-1
-                            SecNum=Neighbor_Cluster(step+1);
-                            if FirNum~=0&&SecNum~=0
-                            current_lt=lookuptable_v{step};
-                            [FirNum]=current_lt(FirNum,SecNum);
-                            elseif FirNum~=0
-                                [FirNum]= Vari_zeromsg_alin_table(2,FirNum,step);
-                            elseif SecNum~=0
-                                [FirNum]= Vari_zeromsg_alin_table(3,SecNum,step);
-                            else
-                                [FirNum]=0;
+                        if length(Neighbor_Cluster)~=1                           
+                            for step=1:length(Neighbor_Cluster)-1
+                                SecNum=Neighbor_Cluster(step+1);
+                                if FirNum~=0
+                                    current_lt=lookuptable_v{step};
+                                    [FirNum]=current_lt(FirNum,SecNum);
+                                else
+                                    FirNum=obj.p_vari_lt(ss,SecNum);
+                                end
                             end
                         end
                         %%%%%%%%%%%%%%%%
                         msg_noalignment_v=FirNum;
-                        %msg_noalignment_v=Trace([QuanChan(ii) Neighbor_Cluster],obj.vari_lt(ss,1:Dv-1));
                         if msg_noalignment_v~=0
-                            obj.V2CTable(CheNode,ii)=Vari_node_transform(Dv,msg_noalignment_v);
+                            obj.V2CTable(CheNode,ii)=Vari_node_transform(virtual_Dv,msg_noalignment_v);
                         else
                             obj.V2CTable(CheNode,ii)=0;
                         end
@@ -147,26 +149,30 @@ classdef Lookup_Table_Method<handle
                 for ii =1:obj.CWLength
                     Dv=obj.vari_degree(ii);
                     CNodesV=obj.VariTable(ii,1:Dv);
-                    Neighbor_Cluster=[QuanChan(ii) ObtainInput( obj.C2VTable(:,ii).',CNodesV )];
-                    %FinalDisOutput(ii)=Trace([QuanChan(ii) Neighbor_Cluster],obj.vari_lt(ss,1:Dv),1);
-                    lookuptable_v=obj.vari_lt(ss,1:Dv);
+                    msg=ObtainInput( obj.C2VTable(:,ii).',CNodesV );
+                    msg(msg==0)=[];
+                    virtual_dv=length(msg);
+                    Neighbor_Cluster=[QuanChan(ii)  msg];                   
                     %%%%%%%VariTrace
                     FirNum=Neighbor_Cluster(1);
-                    for step=1:length(Neighbor_Cluster)-1
-                        SecNum=Neighbor_Cluster(step+1);
-                        if FirNum~=0&&SecNum~=0
-                            current_lt=lookuptable_v{step};
-                            [FirNum]=current_lt(FirNum,SecNum);
-                        elseif FirNum~=0
-                            [FirNum]= Vari_zeromsg_alin_table(2,FirNum,step);
-                        elseif SecNum~=0
-                            [FirNum]= Vari_zeromsg_alin_table(3,SecNum,step);
-                        else
-                            [FirNum]=0;
+                    if virtual_dv>0
+                        lookuptable_v=obj.vari_lt(ss,1:virtual_dv);
+                        for step=1:length(Neighbor_Cluster)-1
+                            SecNum=Neighbor_Cluster(step+1);
+                            if FirNum~=0
+                                current_lt=lookuptable_v{step};
+                                [FirNum]=current_lt(FirNum,SecNum);
+                            else
+                                FirNum=obj.p_vari_lt(ss,SecNum);
+                            end
+                            
                         end
                     end
                     %%%%%%%%%%%%%%%%
                     FinalDisOutput(ii)=FirNum;
+                    if FirNum==0
+                        a=1;
+                    end
                 end
                 subplot(1,2,1);
                 histogram(FinalDisOutput);

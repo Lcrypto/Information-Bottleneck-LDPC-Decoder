@@ -42,7 +42,7 @@ for Eb_N0=2.7
 %     [ber_cBP(Index),fer_cBP(Index)]=bp_decoder.continuous_BP(Eb_N0,runtime,CodeRate);
     %% Discrete Message Passing Algorithm
     ib_decoder=Lookup_Table_Method(lookup_t.check_lt,lookup_t.vari_lt,MaxIter,lookup_t.LLRTable,H_Class.H,lookup_t.vari_node_transform,...
-                                    lookup_t.check_node_transform,H_Class.dc_max,H_Class.dv_max,H_Class.p_flag,H_Class.p_bits,T,lookup_t.vari_zeromsg_alin_table);
+                                    lookup_t.check_node_transform,H_Class.dc_max,H_Class.dv_max,H_Class.p_flag,H_Class.p_bits,T,lookup_t.p_vari_lt);
     ib_decoder.Parity_check_matrix_analysis();
     [ber_IB(Index),fer_IB(Index)]=ib_decoder.Simulation(Eb_N0,runtime,Max,Min,ProbConTY,CodeRate);
     %% Discrete Message Passing   
