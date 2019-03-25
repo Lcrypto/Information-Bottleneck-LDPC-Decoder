@@ -15,7 +15,7 @@ puncrate_c=1/11;
 %%
 
 prob_join_x_t=prob_join_x_t./sum(sum(prob_join_x_t));
-lookup_t=LookupTable_Construction(evo_08.chec_distri_vec,evo_08.output_dist_evo,prob_join_x_t,MaxIter,H_Class.dc_max,H_Class.dv_max,T,puncrate_c);
+lookup_t=LookupTable_Construction(evo_08.c_output_dist_evo,evo_08.v_output_dist_evo,prob_join_x_t,MaxIter,H_Class.dc_max,H_Class.dv_max,T,puncrate_c);
 [CMapping,VMapping]=lookup_t.Mapping_Construction (MaxRun);
 [vari_lt,check_lt]=lookup_t.lt_construction(CMapping,VMapping);
 lookup_t.mutual_information_plot(2.0);

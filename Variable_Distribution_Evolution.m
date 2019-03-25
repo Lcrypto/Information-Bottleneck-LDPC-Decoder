@@ -9,7 +9,8 @@ classdef Variable_Distribution_Evolution<handle
         punc_c;
         punc_v;
         dist_evo;
-        output_dist_evo;
+        v_output_dist_evo;
+        c_output_dist_evo;
     end
     
     methods
@@ -31,7 +32,8 @@ classdef Variable_Distribution_Evolution<handle
             obj.punc_v=zeros(1,iter_num);
             obj.dist_evo=zeros(iter_num+1,length(obj.vari_distri_vec)+1);
             obj.dist_evo(1,2:end)=obj.vari_distri_vec;
-            obj.output_dist_evo=zeros(iter_num,length(obj.vari_distri_vec));
+            obj.v_output_dist_evo=zeros(iter_num,length(obj.vari_distri_vec));
+            obj.c_output_dist_evo=zeros(iter_num,length(obj.chec_distri_vec));
             for ii=1:iter_num
                 if ii==1
                     obj.punc_c(ii)=1-obj.distric_func(obj.chec_distri_vec,1-obj.punc_rate_ch);
@@ -47,15 +49,25 @@ classdef Variable_Distribution_Evolution<handle
                         end
                     end
                 end
-                %%%%Update outcoming message distribution
+                %%%%Update variable node outcoming message distribution
                 for kk=1:length(obj.vari_distri_vec)+1  %%calclate the rate of edges which have (k-1) non-zero neighbors 
                     for jj=1:length(obj.vari_distri_vec) %% vari degree j nodes 
                         if jj-1>=(kk-1)
-                            obj.output_dist_evo(ii,kk)=obj.output_dist_evo(ii,kk)+obj.vari_distri_vec(jj)*nchoosek(jj-1,kk-1)*(1-obj.punc_c(ii))^(kk-1)*(obj.punc_c(ii))^((jj-1)-(kk-1));                            
+                            obj.v_output_dist_evo(ii,kk)=obj.v_output_dist_evo(ii,kk)+obj.vari_distri_vec(jj)*nchoosek(jj-1,kk-1)*(1-obj.punc_c(ii))^(kk-1)*(obj.punc_c(ii))^((jj-1)-(kk-1));                            
                         end
                     end
                 end
-                
+                %%%%update check node outcoming message distribution
+                for kk=1:length(obj.chec_distri_vec)
+                    if obj.chec_distri_vec(kk)~=0
+                        if ii==1
+                            obj.c_output_dist_evo(ii,kk)=obj.chec_distri_vec(kk)*(1-obj.punc_rate_ch)^(kk-1);
+                        else
+                            obj.c_output_dist_evo(ii,kk)=obj.chec_distri_vec(kk)*(1-obj.punc_v(ii-1))^(kk-1);
+                        end
+                    end
+                end
+                obj.c_output_dist_evo(ii,:)=obj.c_output_dist_evo(ii,:)/sum(obj.c_output_dist_evo(ii,:));
             end                        
         end 
         
@@ -72,8 +84,7 @@ classdef Variable_Distribution_Evolution<handle
             figure;
             grid on;
             Figuresetting;
-            bar3(obj.dist_evo(2:end,:),'stacked');
-         
+            bar3(obj.dist_evo(2:end,:),'stacked');         
             zlim([0 1]);
             legend('Degree-0','Degree-1','Degree-2','Degree-3','Degree-4','Degree-5','Degree-6');
             legend show;
@@ -88,15 +99,18 @@ classdef Variable_Distribution_Evolution<handle
             figure;
             grid on;
             Figuresetting;
-            bar3(obj.output_dist_evo,'stacked');
-
-            legend('0 Neighbor','1 Neighbor','2 Neighbors','3 Neighbors','4 Neighbors','5 Neighbors');
-           
+            bar3(obj.v_output_dist_evo,'stacked');
+            legend('0 Neighbor','1 Neighbor','2 Neighbors','3 Neighbors','4 Neighbors','5 Neighbors');           
             zlim([0 1]);
             ylabel('Iteration Times');
-            zlabel('Rate of Neighbors')
-            
+            zlabel('Rate of Neighbors')            
             legend show;
+            
+            figure;
+            grid on;
+            Figuresetting;
+            bar3(obj.c_output_dist_evo,'stacked');
+
             
             
         end

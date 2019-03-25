@@ -72,6 +72,9 @@ classdef BP_method <handle
                 LLRTotal=PostLLR+sum(MsgC2V);
                 histogram(LLRTotal);
                 xlim([-30 30]);
+                title(num2str(hh));
+                pause(0.05);
+                
                 %% Bit Dicision
                 FinalBits=zeros(1,VNum);
                 for ii=1:VNum
@@ -119,33 +122,6 @@ classdef BP_method <handle
             fer=sum(frame_error)/Runtime;
         end
         
-        function [ber,fer]= finite_min_sum(obj,Eb_N0,Runtime,CodeRate,integer_bits,fraction_bits,offset_factor)
-
-            
-            cwLength=obj.CWLength;
-            bit_error=zeros(1,Runtime);
-            frame_error=zeros(1,Runtime);
-            P_bits=obj.p_bits;
-            P_flag=obj.p_flag;
-            for mm=1:Runtime
-                trans_bits=zeros(1,cwLength);
-                CodeWord=-2*trans_bits+1;                                           % Convert Binary Bits to Codeword
-                sigma2=10^(-0.1*Eb_N0)/(2*CodeRate);
-                TransCD=CodeWord+normrnd(0,sqrt(sigma2),1,cwLength);                % add noise
-                LLR_in=TransCD*(2/sigma2);
-                if P_flag==1
-                    LLR_in(1:P_bits)=0;
-                end
-                [FinalBits] = LDPC_Decoder(obj,LLR_in,trans_bits);
-                bit_error(mm)=sum(trans_bits~=FinalBits);
-                if bit_error(mm) ~= 0
-                    frame_error(mm)=1;
-                end
-                display(['LLR - Method under:' num2str(Eb_N0) 'has run'  num2str(mm/Runtime)]);
-            end
-            ber=sum(bit_error)/(Runtime*obj.CWLength);
-            fer=sum(frame_error)/Runtime;
-        end
                 
         function [ber,fer] = quatize_BP(obj,Eb_N0,Runtime,CodeRate,Max,Min,Obsize,ProbConTY,LLR_table)
             cwLength=obj.CWLength;

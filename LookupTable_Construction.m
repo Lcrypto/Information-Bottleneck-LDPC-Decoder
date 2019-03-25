@@ -34,7 +34,7 @@ classdef LookupTable_Construction<handle
             obj.T=T;
             obj.dc_max=dc_max;
             obj.dv_max=dv_max;
-            obj.check_node_transform=zeros(length(obj.check_distri_vec),obj.T,obj.MaxIter);
+            obj.check_node_transform=zeros(size(obj.check_distri_vec,2),obj.T,obj.MaxIter);
             obj.vari_node_transform=zeros(size(obj.vari_distri_vec,2),obj.T,obj.MaxIter);
             obj.puncrate_c=puncrate_c;
             obj.channel_mapping_matrix=zeros(obj.MaxIter,obj.T);
@@ -51,7 +51,7 @@ classdef LookupTable_Construction<handle
                     [CMapping(S,ii),~,CProbJoinXT1] = BCNO( CProbJoinXT1,CProbJoinXT2,obj.T,MaxRun);
                 end
                 %%%% Check Node ----Message Alignment Part
-                [ ~,pda_join_x_z,obj.check_node_transform(:,:,S)] = ckeck_node_message_aligen( CMapping(S,:),obj.check_distri_vec,obj.T );
+                [ ~,pda_join_x_z,obj.check_node_transform(:,:,S)] = ckeck_node_message_aligen( CMapping(S,:),obj.check_distri_vec(S,:),obj.T );
                 %%%%%%%Variable Part
                 VProbJoinXT1=obj.ChannelCluster;
                 CProbJoinXT1_da= pda_join_x_z;

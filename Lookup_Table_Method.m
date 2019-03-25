@@ -15,7 +15,6 @@ classdef Lookup_Table_Method<handle
         p_flag;
         p_bits;
         T;
-        vari_zeromsg_alin_tab;
         p_vari_lt;
     end
     properties (SetAccess=private)
