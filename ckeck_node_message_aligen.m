@@ -31,6 +31,9 @@ for ii=1:length(node_distri)
         state_vec(ii)=1;    %%Since it has been aligned, stste is turned into 1
     end    
 end
+%%%%%%%%%Make sure symmetry
+pda_join_x_z(:,T/2+1:end)=rot90(pda_join_x_z(:,1:T/2),2);
+pda_join_x_z=pda_join_x_z./sum(sum(pda_join_x_z));
 
 end
 

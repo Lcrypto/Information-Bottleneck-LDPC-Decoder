@@ -4,11 +4,11 @@ function [ MT ] = LLRMappingTable( LLR,Combination )
 jj=1;
 Partition(jj)=1;
 for ii=2:length(LLR)/2
-    if LLR(ii)==0           %%Add the condition that LLR is zero
-        jj=jj+1;
-        Partition(jj)=(length(LLR)/2)-ii+1;
-        break;
-    elseif(abs(LLR(ii)-LLR(ii-1))<0.00001)
+%     if LLR(ii)==0           %%Add the condition that LLR is zero
+%         jj=jj+1;
+%         Partition(jj)=(length(LLR)/2)-ii+1;
+%         break;
+    if(abs(LLR(ii)-LLR(ii-1))<0.00001)
         Partition(jj)=Partition(jj)+1;
     else
         jj=jj+1;

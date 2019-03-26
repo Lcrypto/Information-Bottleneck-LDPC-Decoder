@@ -17,6 +17,9 @@ Mapping.Combo=T1T2Comb;
 Mapping.ProbConTT1T2=NProbConTT1T2;
 Mapping.NProbJoinXT=NProbJoinXT;
 Mapping.MI=Mutual_Information(NProbJoinXT);
+subplot(1,2,1);
+plot(sum(NProbJoinXT));
+pause(0.01);
 end
 
  

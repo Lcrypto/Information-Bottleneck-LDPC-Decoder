@@ -42,7 +42,9 @@ classdef LookupTable_Construction<handle
         end
         
         function [CMapping,VMapping]=Mapping_Construction (obj,MaxRun)
-
+            
+            obj.ChannelCluster(:,obj.T/2+1:end)=rot90(obj.ChannelCluster(:,1:obj.T/2),2);
+            obj.ChannelCluster=obj.ChannelCluster./sum(sum(obj.ChannelCluster));
             CProbJoinXT1=obj.ChannelCluster;
             CProbJoinXT2=CProbJoinXT1;   
             for S=1:obj.MaxIter
@@ -55,6 +57,7 @@ classdef LookupTable_Construction<handle
                 %%%%%%%Variable Part
                 VProbJoinXT1=obj.ChannelCluster;
                 CProbJoinXT1_da= pda_join_x_z;
+                %VProbJoinXT1=pda_join_x_z;
                 %%%%
                 for jj=1:obj.dv_max
                     [VMapping(S,jj),~,VProbJoinXT1] = BVNO( VProbJoinXT1,CProbJoinXT1_da,obj.T,MaxRun);

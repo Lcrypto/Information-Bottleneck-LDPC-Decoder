@@ -6,7 +6,7 @@ clear;
 % load('ChannelCluster_10_to_18');
 % load('80211_irr_648_1296_lookuptable_design07');
 load('H_08');
-load('LT-PBRL-R08-E20-T16-0');
+load('LT-PBRL-R08-E21-T16-0');
 load('R08-E27-T16-0');
 %  load('80211_irr_648_1296');
 %  load('LT-80211-R05-E07-T18-1');
@@ -26,7 +26,7 @@ CodeRate=H_Class.CodeRate;
 
 %%
 Index=1;
-for Eb_N0=2.7
+for Eb_N0=2.8
     ProbConTY=ChannelCluster(Index).ProbConTY ;
     LLR_table=ChannelCluster(Index).LLR ;
     if Eb_N0<=2.4
