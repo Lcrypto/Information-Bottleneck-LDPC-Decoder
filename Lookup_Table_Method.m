@@ -193,7 +193,7 @@ classdef Lookup_Table_Method<handle
             p_flag_loc=obj.p_flag;
             p_bits_loc=obj.p_bits;
             T_loc=obj.T;
-            for mm=1:Runtime
+            parfor mm=1:Runtime
                 trans_bits=zeros(1,cwLength);
                 CodeWord=-2*trans_bits+1;                                           % Convert Binary Bits to Codeword
                 sigma2=10^(-0.1*Eb_N0)/(2*CodeRate);

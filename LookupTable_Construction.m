@@ -66,9 +66,9 @@ classdef LookupTable_Construction<handle
                     end
                 end
                 %%%% Message AliPart
-                [ ~,pda_join_x_z,obj.vari_node_transform(:,:,S)] = vari_node_message_aligen( VMapping(S,:),obj.ChannelCluster,obj.vari_distri_vec(S,:),obj.T );
+                [ ~,pda_join_x_z,obj.vari_node_transform(:,:,S)] = vari_node_message_aligen( VMapping(S,:),obj.ChannelCluster,obj.vari_distri_vec,obj.T );
                 obj.averaged_distribution_withAL_v(:,:,S)=pda_join_x_z;
-                Mutual_Information(pda_join_x_z)
+                Mutual_Information(VProbJoinXT1)
                 CProbJoinXT1=pda_join_x_z;
                 CProbJoinXT2=CProbJoinXT1;
                 display(num2str(S));
