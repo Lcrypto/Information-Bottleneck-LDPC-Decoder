@@ -13,5 +13,5 @@ clear all;
 load('80211_irr_648_1296');
 p_flag=0;
 p_bits=0;
-H_Class=H_Analyzer(H,p_flag,p_bits);
+H_Class=H_Analyzer(H_Class.H,p_flag,p_bits);
 H_Class.Analyze();

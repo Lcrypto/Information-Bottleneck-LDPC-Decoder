@@ -21,6 +21,7 @@ classdef LookupTable_Construction<handle
         puncrate_c;
         channel_mapping_matrix;
         averaged_distribution_withAL_v;
+        averaged_mutual_info;
         
     end
     
@@ -39,6 +40,7 @@ classdef LookupTable_Construction<handle
             obj.puncrate_c=puncrate_c;
             obj.channel_mapping_matrix=zeros(obj.MaxIter,obj.T);
             obj.p_vari_lt=zeros(obj.MaxIter,obj.T);
+            obj.averaged_mutual_info=zeros(1,obj.MaxIter);
         end
         
         function [CMapping,VMapping]=Mapping_Construction (obj,MaxRun)
@@ -53,7 +55,8 @@ classdef LookupTable_Construction<handle
                     [CMapping(S,ii),~,CProbJoinXT1] = BCNO( CProbJoinXT1,CProbJoinXT2,obj.T,MaxRun);
                 end
                 %%%% Check Node ----Message Alignment Part
-                [ ~,pda_join_x_z,obj.check_node_transform(:,:,S)] = ckeck_node_message_aligen( CMapping(S,:),obj.check_distri_vec(S,:),obj.T );
+                %[pda_join_x_z,obj.check_node_transform(:,:,S)] = Message_Rearrange( CMapping(S,:),obj.ChannelCluster,obj.check_distri_vec,obj.T,1);
+                [ ~,pda_join_x_z,obj.check_node_transform(:,:,S)] = ckeck_node_message_aligen( CMapping(S,:),obj.check_distri_vec,obj.T );
                 %%%%%%%Variable Part
                 VProbJoinXT1=obj.ChannelCluster;
                 CProbJoinXT1_da= pda_join_x_z;
@@ -61,17 +64,12 @@ classdef LookupTable_Construction<handle
                 %%%%
                 for jj=1:obj.dv_max
                     [VMapping(S,jj),~,VProbJoinXT1] = BVNO( VProbJoinXT1,CProbJoinXT1_da,obj.T,MaxRun);
-                    %%% need punctured information in the first lookuptable
-                    %%% every first time  
-                    if jj==1
-                        [ aligned_prob_join_x_t,obj.p_vari_lt(S,:) ] = message_alignment( CProbJoinXT1_da,VProbJoinXT1,obj.T);
-                        %VProbJoinXT1=(1-obj.puncrate_c)*VProbJoinXT1+obj.puncrate_c*aligned_prob_join_x_t;
-                    end
                 end
                 %%%% Message AliPart
-                [ ~,pda_join_x_z,obj.vari_node_transform(:,:,S)] = vari_node_message_aligen( VMapping(S,:),obj.ChannelCluster,obj.vari_distri_vec(S,:),obj.T );
+                %[pda_join_x_z,obj.vari_node_transform(:,:,S)] =  Message_Rearrange( VMapping(S,:),obj.ChannelCluster,obj.vari_distri_vec,obj.T,0 );
+                [ ~,pda_join_x_z,obj.vari_node_transform(:,:,S)] = vari_node_message_aligen( VMapping(S,:),obj.ChannelCluster,obj.vari_distri_vec,obj.T );
                 obj.averaged_distribution_withAL_v(:,:,S)=pda_join_x_z;
-                Mutual_Information(pda_join_x_z)
+                obj.averaged_mutual_info(S)=Mutual_Information(pda_join_x_z);
                 CProbJoinXT1=pda_join_x_z;
                 CProbJoinXT2=CProbJoinXT1;
                 display(num2str(S));
@@ -99,15 +97,8 @@ classdef LookupTable_Construction<handle
         end
         
         function mutual_information_plot(obj,Eb_N0)            
-            mi_average=zeros(1,obj.MaxIter);
-            mi_lastoutput=zeros(1,obj.MaxIter);
-            for ii=1:obj.MaxIter
-                mi_average(ii)=Mutual_Information(obj.averaged_distribution_withAL_v(:,:,ii));
-            end
-            plot(1:obj.MaxIter,mi_average);
-            hold on;
-            plot(1:obj.MaxIter,mi_lastoutput);
-            legend(['MI-Average with design Eb/N0 =' num2str(Eb_N0) 'dB'],['MI-last output with design Eb/N0 =' num2str(Eb_N0) 'dB']);
+            plot(1:obj.MaxIter,obj.averaged_mutual_info);
+            legend(['MI-Average with design Eb/N0 =' num2str(Eb_N0) 'dB']);
             xlabel('Iteration Time');
             ylabel('I(X_v^{out};T_v^{out})');
             grid on;                                 
