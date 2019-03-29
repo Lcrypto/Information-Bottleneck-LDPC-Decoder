@@ -34,7 +34,7 @@ for Eb_N0=2.8
     elseif Eb_N0<=2.5
         runtime=10;
     else
-        runtime=10;
+        runtime=1;
     end
     errnum=zeros(3,runtime);
     %% continuous Message Passing
