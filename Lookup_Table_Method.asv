@@ -124,23 +124,26 @@ classdef Lookup_Table_Method<handle
                     for jj=1:Dv
                         edge_msg=edge_msg2;
                         edge_msg(jj+1)=0;
-                        CheNode=CNodesV(jj);
-                        edge_msg=edge_msg(edge_msg~=0);
-                        if QuanChan(ii)==0
-                            edge_msg1=[0 edge_msg];
-                            edge_msg=edge_msg1;
-                        end
-                        virtual_Dv=length(edge_msg);
+%                         CheNode=CNodesV(jj);
+%                         edge_msg=edge_msg(edge_msg~=0);
+%                         if QuanChan(ii)==0
+%                             edge_msg1=[0 edge_msg];
+%                             edge_msg=edge_msg1;
+%                         end
+%                         virtual_Dv=length(edge_msg);
                         Neighbor_Cluster=edge_msg;
                         %%%%%%%VariTrace
                         FirNum=Neighbor_Cluster(1);
-                        if length(Neighbor_Cluster)~=1                           
+                        if length(Neighbor_Cluster)~=1
                             for step=1:length(Neighbor_Cluster)-1
                                 SecNum=Neighbor_Cluster(step+1);
-                                if FirNum~=0
-                                    [FirNum]=obj.num_vari_lt(FirNum,SecNum,step,ss);
+                                if step==1
+                                    if FirNum~=0
+                                        [FirNum]=obj.num_vari_lt(FirNum,SecNum,step,ss);
+                                    else
+                                        FirNum=obj.p_vari_lt(ss,SecNum);
+                                    end
                                 else
-                                    FirNum=obj.p_vari_lt(ss,SecNum);
                                 end
                             end
                         end

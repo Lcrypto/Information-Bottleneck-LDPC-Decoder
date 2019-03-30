@@ -58,12 +58,7 @@ load('LT-PBRL-R08-E21-T16-0');
 myfile=fopen('new.txt','wb');
 %%wirte check table
 for ii=1:50
-    for jj=1:length(lookup_t.check_distri_vec)
-        for kk=1:16
-            fprintf(myfile,'%d ',lookup_t.check_node_transform(jj,kk,ii));
-        end
-        fprintf(myfile,'\n ');
-    end
+    for jj=1:
 end
 
 
