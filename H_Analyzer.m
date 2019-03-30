@@ -98,6 +98,9 @@ classdef H_Analyzer<handle
             obj.dc_degree_dis=zeros(1,obj.dc_max);
             for ii=1:obj.k
                 cur_degree=obj.check_degree(ii);
+                if (cur_degree==0)
+                    a=1;
+                end
                 obj.dc_degree_dis(cur_degree)=obj.dc_degree_dis(cur_degree)+1;
             end
             
