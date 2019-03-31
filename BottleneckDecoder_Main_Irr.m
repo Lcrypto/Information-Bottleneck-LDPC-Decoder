@@ -5,12 +5,12 @@ clear;
 % load('80211_irr_648_1296');
 % load('ChannelCluster_10_to_18');
 % load('80211_irr_648_1296_lookuptable_design07');
-% load('H_08');
-% load('LT-PBRL-R08-E21-T16-0');
-% load('R08-E27-T16-0');
- load('80211_irr_648_1296');
- load('LT-80211-R05-E07-T16-1');
- load('R05-E0118-T16-0');
+load('H_08');
+load('LT-PBRL-R08-E21-T16-0');
+load('R08-E27-T16-0');
+%  load('80211_irr_648_1296');
+%  load('LT-80211-R05-E07-T18-1');
+%  load('R05-E0118-T18-1');
 
 
 %%%BE CAREFUL!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -26,15 +26,15 @@ CodeRate=H_Class.CodeRate;
 
 %%
 Index=1;
-for Eb_N0=1.0:0.1:1.5
+for Eb_N0=2.8
     ProbConTY=ChannelCluster(Index).ProbConTY ;
     LLR_table=ChannelCluster(Index).LLR ;
-    if Eb_N0<=1.3
-        runtime=1000;
-    elseif Eb_N0<=1.5
-        runtime=10000;
+    if Eb_N0<=2.4
+        runtime=10;
+    elseif Eb_N0<=2.5
+        runtime=10;
     else
-        runtime=50000;
+        runtime=1;
     end
     errnum=zeros(3,runtime);
     %% continuous Message Passing
