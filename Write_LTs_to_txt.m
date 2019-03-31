@@ -6,10 +6,10 @@ end
 fprintf(file,'\n');
 
 file=fopen('Lookup_Table.txt','wb');
-fprintf(file,'%d\n',lookup_t.T);
-fprintf(file,'%d\n',lookup_t.MaxIter);
-fprintf(file,'%d\n',lookup_t.dc_max);
-fprintf(file,'%d\n',lookup_t.dv_max);
+fprintf(file,'%d \n',lookup_t.T);
+fprintf(file,'%d \n',lookup_t.MaxIter);
+fprintf(file,'%d \n',lookup_t.dc_max);
+fprintf(file,'%d \n',lookup_t.dv_max);
 for ii=1:lookup_t.MaxIter
     for jj=1:lookup_t.dc_max-2
         matrix=lookup_t.check_lt{ii,jj};

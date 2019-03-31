@@ -1,0 +1,4 @@
+file=fopen('test.txt','wb');
+a=[1 2 3];
+for ii=1:3
+    fprint(file,)
