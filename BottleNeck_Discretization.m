@@ -3,8 +3,8 @@
 clear;
 %% Initialization
 %% Initialization
-CodeRate=0.5;
-T=16;               %Denotes the clustering size
+CodeRate=0.8;
+T=4;               %Denotes the clustering size
 Obsize=2000;        %Observation Size
 %%%%%Special for LLR=0
  LLR0_vec=zeros(2,Obsize);
@@ -18,7 +18,7 @@ OptimalMI=zeros(1,8);
 Min=-2;
 Max=2;                    
 Index=1;
-for EbN0=1.0:0.1:1.8
+for EbN0=2.8
     sigma2=10^(-0.1*EbN0)/(2*CodeRate);
     %% First We obtain 2000 points between [-2,2]
     Observation=linspace(Min,Max,Obsize);
