@@ -29,7 +29,7 @@ CodeRate=H_Class.CodeRate;
 
 %%
 Index=1;
-for Eb_N0=4
+for Eb_N0=3.5
     %ProbConTY=ChannelCluster0to4(Index).ProbConTY ;
     %LLR_table=ChannelCluster(Index).LLR ;
     if Eb_N0<=0.5
@@ -37,7 +37,7 @@ for Eb_N0=4
     elseif Eb_N0<=2
         runtime=1000;
     else
-        runtime=50000;
+        runtime=200000;
     end
     errnum=zeros(3,runtime);
     %% continuous Message Passing

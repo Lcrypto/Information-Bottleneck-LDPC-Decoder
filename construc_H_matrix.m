@@ -71,8 +71,9 @@
 %     end
 % end
 % fclose('all');
-% load('LT-PBRL-R08-E21-T16-0');
-% myfile=fopen('new.txt','wb');
+%%  Message Alignment Table%%%%%%%%%%%%%%
+% load('LT-PBRL-R05-E127-T16-0');
+% myfile=fopen('LT-PBRL-R05-E127-T16-0.txt','wb');
 % %%wirte check table
 % for ii=1:50
 %     for jj=1:length(lookup_t.check_distri_vec)
@@ -82,42 +83,40 @@
 %         fprintf(myfile,'\n ');
 %     end
 % end
-
-
-%% Construct text file for H
-clear
-load('80211_irr_648_1296');
-myfile=fopen('80211_irr_648_1296.txt','wb');
-fprintf(myfile,'%d\n',H_Class.n);
-fprintf(myfile,'%d\n',H_Class.k);
-H_Class.Analyze();
-edge1=sum(H_Class.vari_degree(:));
-edge2=sum(H_Class.check_degree(:));
-if edge1==edge2
-    fprintf(myfile,'%d\n',edge1);
-else
-    disp('Edges are not Equal!');
-    return;
-end
-vari_max=max(H_Class.vari_degree(:));
-fprintf(myfile,'%d\n',vari_max);
-check_max=max(H_Class.check_degree(:));
-fprintf(myfile,'%d\n',check_max);
-for ii=1:H_Class.n
-    fprintf(myfile,'%d %d\n',ii-1,H_Class.vari_degree(ii));
-end
-for ii=1:H_Class.k
-    fprintf(myfile,'%d %d\n',ii-1,H_Class.check_degree(ii));
-end
-Sum=0;
-for ii=1:H_Class.n
-    cur_edge=find(H_Class.H(:,ii));
-    Sum=length(cur_edge)+Sum;
-    for jj=1:length(cur_edge)
-        fprintf(myfile,'%d %d\n',ii-1,cur_edge(jj)-1);
-    end
-end
-fclose('all');
+%% Construct text file for H Kasra
+% clear
+% load('Margulis2640');
+% myfile=fopen('Margulis2640.txt','wb');
+% fprintf(myfile,'%d\n',H_Class.n);
+% fprintf(myfile,'%d\n',H_Class.k);
+% H_Class.Analyze();
+% edge1=sum(H_Class.vari_degree(:));
+% edge2=sum(H_Class.check_degree(:));
+% if edge1==edge2
+%     fprintf(myfile,'%d\n',edge1);
+% else
+%     disp('Edges are not Equal!');
+%     return;
+% end
+% vari_max=max(H_Class.vari_degree(:));
+% fprintf(myfile,'%d\n',vari_max);
+% check_max=max(H_Class.check_degree(:));
+% fprintf(myfile,'%d\n',check_max);
+% for ii=1:H_Class.n
+%     fprintf(myfile,'%d %d\n',ii-1,H_Class.vari_degree(ii));
+% end
+% for ii=1:H_Class.k
+%     fprintf(myfile,'%d %d\n',ii-1,H_Class.check_degree(ii));
+% end
+% Sum=0;
+% for ii=1:H_Class.n
+%     cur_edge=find(H_Class.H(:,ii));
+%     Sum=length(cur_edge)+Sum;
+%     for jj=1:length(cur_edge)
+%         fprintf(myfile,'%d %d\n',ii-1,cur_edge(jj)-1);
+%     end
+% end
+% fclose('all');
 
 %% Sudarsan
 %%%Construc discription -Sudarsan%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -160,5 +159,62 @@ fclose('all');
 %     end
 % end
 % fclose('all');
-
-
+%% Cnstruc Lookup Table .txt
+% load('LT-PBRL-R05-E127-T16-0');
+% myfile=fopen('LT-PBRL-R05-E127-T16-0.txt','wb');
+% %%%Line1: cardinality
+% %%%Line2: Max Iteration
+% %%%Line3: Max Vari Degree
+% %%%Line4: Max Chec Degree
+% %%%Line5->end Tables check first; Vari second
+% fprintf(myfile,"%d \n",lookup_t.T);
+% fprintf(myfile,"%d \n",lookup_t.MaxIter);
+% fprintf(myfile,"%d \n",lookup_t.dv_max);
+% fprintf(myfile,"%d \n",lookup_t.dc_max);
+% for ii=1:lookup_t.MaxIter
+%     for jj=1:lookup_t.dc_max-2
+%         cur_lt=lookup_t.check_lt{ii,jj};
+%         for kk=1:lookup_t.T
+%             for hh=1:lookup_t.T
+%                 fprintf(myfile,"%d ",cur_lt(kk,hh));
+%             end
+%             fprintf(myfile,"\n");
+%         end
+%     end
+% end
+% 
+% for ii=1:lookup_t.MaxIter
+%     for jj=1:lookup_t.dv_max
+%         cur_lt=lookup_t.vari_lt{ii,jj};
+%         for kk=1:lookup_t.T
+%             for hh=1:lookup_t.T
+%                 fprintf(myfile,"%d ",cur_lt(kk,hh));
+%             end
+%             fprintf(myfile,"\n");
+%         end
+%     end
+% end
+% fclose("all");
+%% Channel Quantization Part
+%%Line 1: Partition Size
+%%Line 2->Simulation Nnum
+%%Line 3->end: Parition Format-> Eb/N0 quan.....
+load('R05-E024-T16-0');
+myfile=fopen('Channel_Quantization.txt','wb');
+fprintf(myfile,"%d \n",2000);
+fprintf(myfile,"%d \n",13);
+EbNo=0;
+for index=1:13
+    fprintf(myfile,"%d ",EbNo);
+    ProbConTY=ChannelCluster(index).ProbConTY;
+    for ii=1:2000
+        fprintf(myfile,"%d ",find(ProbConTY(:,ii)));
+    end
+    fprintf(myfile,"\n",find(ProbConTY(:,ii)));
+    EbNo=EbNo+0.2;
+end
+fclose('all');
+%% new H matrix
+% load('Margulis2640');
+% H_Class=H_Analyzer(H,0,0);
+% H_Class.Analyze();
