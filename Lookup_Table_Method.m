@@ -16,6 +16,8 @@ classdef Lookup_Table_Method<handle
         p_bits;
         T;
         p_vari_lt;
+        num_check_lt;
+        num_vari_lt
     end
     properties (SetAccess=private)
         CheckTable=[];     %%Check Node Table
@@ -36,6 +38,7 @@ classdef Lookup_Table_Method<handle
             %   Initialization                       
             obj.check_lt=check_lt;
             obj.vari_lt=vari_lt;
+            obj.convert_cell_to_num_array();
             obj.Max_Iteration=max_iteration;
             obj.LLRTable=LLR_Table;
             obj.H=H;
@@ -89,47 +92,53 @@ classdef Lookup_Table_Method<handle
                     Dc=obj.check_degree(ii);
                     VnodesC=obj.CheckTable(ii,1:Dc);        %%Obtain the varaible node connected by ii
                     Msg=zeros(1:length(Dc));
+                    if ss==1                            %% obtain input msgs
+                        Neighbor_Cluster_t=FirstV2CTable(ii,VnodesC);
+                    else
+                        Neighbor_Cluster_t=obj.V2CTable(ii,VnodesC);
+                    end
                     for jj=1:Dc
-                        Neighbors=VnodesC;
-                        Neighbors(jj)=[];                   %% delete itself
-                        if ss==1                            %% obtain input msgs
-                            Neighbor_Cluster=FirstV2CTable(ii,Neighbors);
-                        else
-                            Neighbor_Cluster=obj.V2CTable(ii,Neighbors);
-                        end
-                        if find(Neighbor_Cluster==0)
+                        Neighbor_Cluster=Neighbor_Cluster_t;
+                        Neighbor_Cluster(jj)=[];
+                        if sum((Neighbor_Cluster==0))
                             Msg(jj)=0;
                         else
-                            msg_noalignment_c=Trace( Neighbor_Cluster,obj.check_lt(ss,1:Dc-2));
+                            %%%Check Trace
+                            FirNum=Neighbor_Cluster(1);
+                            for m=1:length(Neighbor_Cluster)-1
+                                SecNum=Neighbor_Cluster(m+1);
+                                FirNum=obj.num_check_lt(FirNum,SecNum,m,ss);
+                            end   
+                            msg_noalignment_c=FirNum;
+                            %%%%%%%%%%%%%%
                             Msg(jj)=Check_node_transform(Dc,msg_noalignment_c);
-                        end                        
+                        end
                     end
-                     obj.C2VTable(ii,VnodesC)=Msg;
+                    obj.C2VTable(ii,VnodesC)=Msg;
                 end
                 %% v -> c         
                 for ii =1:obj.CWLength
                     Dv=obj.vari_degree(ii);
                     CNodesV=obj.VariTable(ii,1:Dv);
-                    lookuptable_v=obj.vari_lt(ss,1:Dv-1);
-                    if ii> 3000
-                        a=1;
-                    end
+                    edge_msg2=[QuanChan(ii) obj.C2VTable(CNodesV,ii).'];                    
                     for jj=1:Dv
+                        edge_msg=edge_msg2;
+                        edge_msg(jj+1)=0;
                         CheNode=CNodesV(jj);
-                        Neighbors=CNodesV;
-                        Neighbors(jj)=[];
-                        edge_msg=obj.C2VTable(Neighbors,ii).';
-                        edge_msg(edge_msg==0)=[];
-                        virtual_Dv=length(edge_msg)+1;
-                        Neighbor_Cluster=[QuanChan(ii) edge_msg];
+                        edge_msg=edge_msg(edge_msg~=0);
+                        if QuanChan(ii)==0
+                            edge_msg1=[0 edge_msg];
+                            edge_msg=edge_msg1;
+                        end
+                        virtual_Dv=length(edge_msg);
+                        Neighbor_Cluster=edge_msg;
                         %%%%%%%VariTrace
                         FirNum=Neighbor_Cluster(1);
                         if length(Neighbor_Cluster)~=1                           
                             for step=1:length(Neighbor_Cluster)-1
                                 SecNum=Neighbor_Cluster(step+1);
                                 if FirNum~=0
-                                    current_lt=lookuptable_v{step};
-                                    [FirNum]=current_lt(FirNum,SecNum);
+                                    [FirNum]=obj.num_vari_lt(FirNum,SecNum,step,ss);
                                 else
                                     FirNum=obj.p_vari_lt(ss,SecNum);
                                 end
@@ -144,23 +153,20 @@ classdef Lookup_Table_Method<handle
                         end
                     end
                 end
-                FirstV2CTable=obj.V2CTable;
                 for ii =1:obj.CWLength
                     Dv=obj.vari_degree(ii);
                     CNodesV=obj.VariTable(ii,1:Dv);
-                    msg=ObtainInput( obj.C2VTable(:,ii).',CNodesV );
+                    msg=obj.C2VTable(CNodesV,ii).';
                     msg(msg==0)=[];
                     virtual_dv=length(msg);
                     Neighbor_Cluster=[QuanChan(ii)  msg];                   
                     %%%%%%%VariTrace
                     FirNum=Neighbor_Cluster(1);
                     if virtual_dv>0
-                        lookuptable_v=obj.vari_lt(ss,1:virtual_dv);
                         for step=1:length(Neighbor_Cluster)-1
                             SecNum=Neighbor_Cluster(step+1);
                             if FirNum~=0
-                                current_lt=lookuptable_v{step};
-                                [FirNum]=current_lt(FirNum,SecNum);
+                                [FirNum]=obj.num_vari_lt(FirNum,SecNum,step,ss);
                             else
                                 FirNum=obj.p_vari_lt(ss,SecNum);
                             end
@@ -191,7 +197,7 @@ classdef Lookup_Table_Method<handle
             frame_error=zeros(1,Runtime);
             p_flag_loc=obj.p_flag;
             p_bits_loc=obj.p_bits;
-            T_loc=obj.T;
+            %T_loc=obj.T;
             for mm=1:Runtime
                 trans_bits=zeros(1,cwLength);
                 CodeWord=-2*trans_bits+1;                                           % Convert Binary Bits to Codeword
@@ -211,6 +217,28 @@ classdef Lookup_Table_Method<handle
             end
             BER=sum(bit_error)/(Runtime*obj.CWLength);
             FER=sum(frame_error)/Runtime;            
+        end
+        
+        function convert_cell_to_num_array(obj)
+            [iteration,long]=size(obj.check_lt);
+            [lt_row,lt_col]=size(obj.check_lt{1,1});
+            Num_check_lt=zeros(lt_row,lt_col,long,iteration);
+            for aa=1:iteration
+                for bb=1:long
+                    Num_check_lt(:,:,bb,aa)=obj.check_lt{aa,bb};
+                end
+            end
+            obj.num_check_lt=Num_check_lt;
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            [iteration,long]=size(obj.vari_lt);
+            [lt_row,lt_col]=size(obj.vari_lt{1,1});
+            Num_vari_lt=zeros(lt_row,lt_col,long,iteration);
+            for aa=1:iteration
+                for bb=1:long
+                    Num_vari_lt(:,:,bb,aa)=obj.vari_lt{aa,bb};
+                end
+            end
+            obj.num_vari_lt=Num_vari_lt;
         end
         
         
