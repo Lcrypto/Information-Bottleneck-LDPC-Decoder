@@ -42,7 +42,7 @@ classdef LookupTable_Construction<handle
         end
         
         function [CMapping,VMapping]=Mapping_Construction (obj,MaxRun)
-            
+            Punc_distri=1/(2*obj.T)*ones(2,obj.T);           
             obj.ChannelCluster(:,obj.T/2+1:end)=rot90(obj.ChannelCluster(:,1:obj.T/2),2);
             obj.ChannelCluster=obj.ChannelCluster./sum(sum(obj.ChannelCluster));
             CProbJoinXT1=obj.ChannelCluster;
@@ -64,6 +64,7 @@ classdef LookupTable_Construction<handle
                     %%% need punctured information in the first lookuptable
                     %%% every first time  
                     if jj==1
+                        [PuncMapping,~,VProbJoinXT1] = BVNO( CProbJoinXT1,Punc_distri,obj.T,MaxRun);
                         [ aligned_prob_join_x_t,obj.p_vari_lt(S,:) ] = message_alignment( CProbJoinXT1_da,VProbJoinXT1,obj.T);
                         %VProbJoinXT1=(1-obj.puncrate_c)*VProbJoinXT1+obj.puncrate_c*aligned_prob_join_x_t;
                     end
