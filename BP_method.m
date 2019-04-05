@@ -55,6 +55,9 @@ classdef BP_method <handle
                 end
                 %% VN->CN Message Passing
                 %% v->c
+                effective_edge=[];
+                index=1;
+                effect_distritbuion=zeros(3,15);
                 for ii =1:VNum
                     Dv=obj.vari_degree(ii);
                     CNodesV=obj.VariTable(ii,1:Dv);
@@ -63,6 +66,24 @@ classdef BP_method <handle
                         Neighbors=CNodesV;
                         Neighbors(jj)=[];
                         %MsgV2C(CheNode,ii)=V2CPassing(Neighbors,MsgC2V,ii,PostLLR(ii));
+                        %%%%%%track effective edge distribution
+                        effective_edge(index,1)=nnz(MsgC2V(Neighbors,ii));
+                        if(PostLLR(ii)==0)
+                            effective_edge(index,2)=0;
+                        else
+                            effective_edge(index,2)=1;
+                        end
+                        if (effective_edge(index,1)==0&&effective_edge(index,2)==0)
+                            effect_distritbuion(1,1)=effect_distritbuion(1,1)+1;
+                        elseif effective_edge(index,1)==0&&effective_edge(index,2)~=0
+                            effect_distritbuion(1,2)=effect_distritbuion(1,2)+1;
+                        elseif (effective_edge(index,1)~=0&&effective_edge(index,2)==0)
+                            effect_distritbuion(2,effective_edge(index,1))=effect_distritbuion(2,effective_edge(index,1))+1;
+                        elseif (effective_edge(index,1)~=0&&effective_edge(index,2)~=0)
+                            effect_distritbuion(3,effective_edge(index,1))=effect_distritbuion(3,effective_edge(index,1))+1;
+                        end
+                        index=index+1;
+                        %%%%%%track end%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                         MsgV2C(CheNode,ii)=sum(MsgC2V(Neighbors,ii))+PostLLR(ii);
                         if MsgV2C(CheNode,ii) == 0
                             a=1;

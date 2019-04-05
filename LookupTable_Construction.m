@@ -21,6 +21,7 @@ classdef LookupTable_Construction<handle
         puncrate_c;
         channel_mapping_matrix;
         averaged_distribution_withAL_v;
+        mutual_information;
         
     end
     
@@ -39,10 +40,11 @@ classdef LookupTable_Construction<handle
             obj.puncrate_c=puncrate_c;
             obj.channel_mapping_matrix=zeros(obj.MaxIter,obj.T);
             obj.p_vari_lt=zeros(obj.MaxIter,obj.T);
+            obj.mutual_information=zeros(obj.MaxIter,obj.T);
         end
         
         function [CMapping,VMapping]=Mapping_Construction (obj,MaxRun)
-            Punc_distri=1/(2*obj.T)*ones(2,obj.T);           
+            %Punc_distri=1/(2*obj.T)*ones(2,obj.T);           
             obj.ChannelCluster(:,obj.T/2+1:end)=rot90(obj.ChannelCluster(:,1:obj.T/2),2);
             obj.ChannelCluster=obj.ChannelCluster./sum(sum(obj.ChannelCluster));
             CProbJoinXT1=obj.ChannelCluster;
@@ -64,15 +66,16 @@ classdef LookupTable_Construction<handle
                     %%% need punctured information in the first lookuptable
                     %%% every first time  
                     if jj==1
-                        [PuncMapping,~,VProbJoinXT1] = BVNO( CProbJoinXT1,Punc_distri,obj.T,MaxRun);
+                        %[PuncMapping,~,VProbJoinXT1] = BVNO( CProbJoinXT1,Punc_distri,obj.T,MaxRun);
                         [ aligned_prob_join_x_t,obj.p_vari_lt(S,:) ] = message_alignment( CProbJoinXT1_da,VProbJoinXT1,obj.T);
-                        %VProbJoinXT1=(1-obj.puncrate_c)*VProbJoinXT1+obj.puncrate_c*aligned_prob_join_x_t;
+                        VProbJoinXT1=(1-obj.puncrate_c)*VProbJoinXT1+obj.puncrate_c*aligned_prob_join_x_t;
                     end
                 end
                 %%%% Message AliPart
                 [ ~,pda_join_x_z,obj.vari_node_transform(:,:,S)] = vari_node_message_aligen( VMapping(S,:),obj.ChannelCluster,obj.vari_distri_vec(S,:),obj.T );
                 obj.averaged_distribution_withAL_v(:,:,S)=pda_join_x_z;
                 Mutual_Information(pda_join_x_z)
+                obj.mutual_information(S)=Mutual_Information(pda_join_x_z);
                 CProbJoinXT1=pda_join_x_z;
                 CProbJoinXT2=CProbJoinXT1;
                 display(num2str(S));
