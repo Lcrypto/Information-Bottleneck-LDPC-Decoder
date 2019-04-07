@@ -2,16 +2,15 @@
 clc;
 clear;
 %% Initialization
-load('R05-E06-T16-0');
-load('Chinn05');
-load('Chinn05_10');
+load('R05-E18-T16-0');
+load('Chinn067');
+load('Chinn067_10');
 T=16;                                                   %Denotes the clustering size
 MaxRun=30;
 Min=-2;
 Max=2;                                                 % Number of 1's in each row of Matrix H
 MaxIter=50;
-Eb_N0=2.0;
-puncrate_c=1/17;
+puncrate_c=1/13;
 %%
 
 prob_join_x_t=prob_join_x_t./sum(sum(prob_join_x_t));

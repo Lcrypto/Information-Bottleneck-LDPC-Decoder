@@ -127,9 +127,9 @@ classdef Lookup_Table_Method<handle
                         edge_msg=edge_msg2;
                         edge_msg(jj+1)=0;
                         CheNode=CNodesV(jj);
-                        if (ii==1 && CheNode==13)
-                            s=1;
-                        end
+%                         if (ii==1 && CheNode==13)
+%                             s=1;
+%                         end
                         edge_msg=edge_msg(edge_msg~=0);
                         if QuanChan(ii)==0
                             edge_msg1=[0 edge_msg];
@@ -154,7 +154,7 @@ classdef Lookup_Table_Method<handle
                         msg_noalignment_v=FirNum;
                         if msg_noalignment_v~=0
                             obj.V2CTable(CheNode,ii)=Vari_node_transform(virtual_Dv,msg_noalignment_v);
-                            fprintf('vari operation vari: %d, check: %d, msg: %d\n',ii,CheNode,obj.V2CTable(CheNode,ii));
+                            %fprintf('vari operation vari: %d, check: %d, msg: %d\n',ii,CheNode,obj.V2CTable(CheNode,ii));
                         else
                             obj.V2CTable(CheNode,ii)=0;
                         end
@@ -216,7 +216,7 @@ classdef Lookup_Table_Method<handle
                 if p_flag_loc==1
                     QuanChan(1:p_bits_loc)=0;
                 end
-                load("QuanChan")
+                %load("QuanChan")
                 [FinalBits_R3] = lookuptable_decoder(obj,trans_bits,QuanChan);
                 bit_error(mm)=sum(trans_bits~=FinalBits_R3);
                 if bit_error(mm) ~= 0

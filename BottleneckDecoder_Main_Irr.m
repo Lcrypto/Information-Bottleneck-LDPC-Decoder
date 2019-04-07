@@ -11,9 +11,9 @@ clear;
 %  load('80211_irr_648_1296');
 %  load('LT-80211-R05-E07-T18-1');
 %  load('R05-E0118-T18-1');
-load('Chinn05');
-load('Chinn_lookuptable_06');
-load('R05-E016-T16-0');
+load('Chinn067');
+load('Chinn_lookuptable_067_18');
+load('R05-E24-T16-0');
 
 %%%BE CAREFUL!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 T=16;                                                               %Denotes the clustering size
@@ -28,11 +28,11 @@ CodeRate=H_Class.CodeRate;
 
 %%
 Index=1;
-for Eb_N0=1.6
+for Eb_N0=2.4
     ProbConTY=ChannelCluster.ProbConTY ;
     LLR_table=ChannelCluster.LLR ;
     if Eb_N0<=2.4
-        runtime=100;
+        runtime=10;
     elseif Eb_N0<=2.5
         runtime=10;
     else

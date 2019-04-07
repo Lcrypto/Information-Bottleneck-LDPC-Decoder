@@ -20,8 +20,8 @@ if LLR(T/2)==0
     NProbJoinXT(:,T/2:T/2+1)=[10^-7 10^-7;10^-7 10^-7];
 end
 Mapping.NProbJoinXT=(NProbJoinXT);
-subplot(1,2,2);
-plot(sum(NProbJoinXT));
-pause(0.05);
+% subplot(1,2,2);
+% plot(sum(NProbJoinXT));
+% pause(0.05);
 end
 
