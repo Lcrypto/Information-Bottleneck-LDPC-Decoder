@@ -18,7 +18,7 @@ OptimalMI=zeros(1,8);
 Min=-2;
 Max=2;                    
 Index=1;
-for EbN0=0.6
+for EbN0=1.6:0.2:2.0
     sigma2=10^(-0.1*EbN0)/(2*CodeRate);
     %% First We obtain 2000 points between [-2,2]
     Observation=linspace(Min,Max,Obsize);

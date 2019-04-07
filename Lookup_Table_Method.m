@@ -111,7 +111,8 @@ classdef Lookup_Table_Method<handle
                             end   
                             msg_noalignment_c=FirNum;
                             %%%%%%%%%%%%%%
-                            Msg(jj)=Check_node_transform(Dc,msg_noalignment_c);
+                            Msg(jj)=Check_node_transform(Dc,msg_noalignment_c);                            
+                           %fprintf('vari: %d, check: %d, msg: %d\n',VnodesC(jj),ii,Msg(jj));
                         end
                     end
                     obj.C2VTable(ii,VnodesC)=Msg;
@@ -120,11 +121,15 @@ classdef Lookup_Table_Method<handle
                 for ii =1:obj.CWLength
                     Dv=obj.vari_degree(ii);
                     CNodesV=obj.VariTable(ii,1:Dv);
+
                     edge_msg2=[QuanChan(ii) obj.C2VTable(CNodesV,ii).'];                    
                     for jj=1:Dv
                         edge_msg=edge_msg2;
                         edge_msg(jj+1)=0;
                         CheNode=CNodesV(jj);
+                        if (ii==1 && CheNode==13)
+                            s=1;
+                        end
                         edge_msg=edge_msg(edge_msg~=0);
                         if QuanChan(ii)==0
                             edge_msg1=[0 edge_msg];
@@ -139,6 +144,7 @@ classdef Lookup_Table_Method<handle
                                 SecNum=Neighbor_Cluster(step+1);
                                 if FirNum~=0
                                     [FirNum]=obj.num_vari_lt(FirNum,SecNum,step,ss);
+                                    
                                 else
                                     FirNum=obj.p_vari_lt(ss,SecNum);
                                 end
@@ -148,6 +154,7 @@ classdef Lookup_Table_Method<handle
                         msg_noalignment_v=FirNum;
                         if msg_noalignment_v~=0
                             obj.V2CTable(CheNode,ii)=Vari_node_transform(virtual_Dv,msg_noalignment_v);
+                            fprintf('vari operation vari: %d, check: %d, msg: %d\n',ii,CheNode,obj.V2CTable(CheNode,ii));
                         else
                             obj.V2CTable(CheNode,ii)=0;
                         end
@@ -167,6 +174,7 @@ classdef Lookup_Table_Method<handle
                             SecNum=Neighbor_Cluster(step+1);
                             if FirNum~=0
                                 [FirNum]=obj.num_vari_lt(FirNum,SecNum,step,ss);
+                                
                             else
                                 FirNum=obj.p_vari_lt(ss,SecNum);
                             end
@@ -198,7 +206,7 @@ classdef Lookup_Table_Method<handle
             p_flag_loc=obj.p_flag;
             p_bits_loc=obj.p_bits;
             %T_loc=obj.T;
-            parfor mm=1:Runtime
+            for mm=1:Runtime
                 trans_bits=zeros(1,cwLength);
                 CodeWord=-2*trans_bits+1;                                           % Convert Binary Bits to Codeword
                 sigma2=10^(-0.1*Eb_N0)/(2*CodeRate);
@@ -208,6 +216,7 @@ classdef Lookup_Table_Method<handle
                 if p_flag_loc==1
                     QuanChan(1:p_bits_loc)=0;
                 end
+                load("QuanChan")
                 [FinalBits_R3] = lookuptable_decoder(obj,trans_bits,QuanChan);
                 bit_error(mm)=sum(trans_bits~=FinalBits_R3);
                 if bit_error(mm) ~= 0
