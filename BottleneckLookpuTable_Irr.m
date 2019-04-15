@@ -2,7 +2,7 @@
 clc;
 clear;
 %% Initialization
-load('R05-E18-T16-0');
+load('R067-E195-T16-0');
 load('Chinn067');
 load('Chinn067_10');
 T=16;                                                   %Denotes the clustering size

@@ -162,90 +162,90 @@
 % end
 % fclose('all');
 %% Cnstruc Lookup Table .txt
- load('Chinn_lookuptable_06');
- myfile=fopen('LT-Chinn-06.txt','wb');
-% %%%Line1: cardinality
-% %%%Line2: Max Iteration
-% %%%Line3: Max Vari Degree
-% %%%Line4: Max Chec Degree
-% %%%Check Node Lookup Table
-% %%%Variable Node Lookup Table
-% %%%Check Node Message Alignment Table
-% %%%Variable Node Message Alignment Table
-% %%%Puncture Alignment Table
-fprintf(myfile,"%d \n",lookup_t.T);
-fprintf(myfile,"%d \n",lookup_t.MaxIter);
-fprintf(myfile,"%d \n",lookup_t.dv_max);
-fprintf(myfile,"%d \n",lookup_t.dc_max);
-%%check lookup table 
-for ii=1:lookup_t.MaxIter
-    for jj=1:lookup_t.dc_max-2
-        cur_lt=lookup_t.check_lt{ii,jj};
-        for kk=1:lookup_t.T
-            for hh=1:lookup_t.T
-                fprintf(myfile,"%d ",cur_lt(kk,hh));
-            end
-            fprintf(myfile,"\n");
-        end
-    end
-end
-%%variable lookup table
-for ii=1:lookup_t.MaxIter
-    for jj=1:lookup_t.dv_max
-        cur_lt=lookup_t.vari_lt{ii,jj};
-        for kk=1:lookup_t.T
-            for hh=1:lookup_t.T
-                fprintf(myfile,"%d ",cur_lt(kk,hh));
-            end
-            fprintf(myfile,"\n");
-        end
-    end
-end
-%%%check alignment table 
-for ii=1:50
-    for jj=1:length(lookup_t.check_distri_vec(1,:))
-        for kk=1:16
-            fprintf(myfile,'%d ',lookup_t.check_node_transform(jj,kk,ii));
-        end
-        fprintf(myfile,'\n ');
-    end
-end
-%%%Variable Message Alignment Table
-for ii=1:50
-    for jj=1:length(lookup_t.vari_distri_vec(1,:))
-        for kk=1:16
-            fprintf(myfile,'%d ',lookup_t.vari_node_transform(jj,kk,ii));
-        end
-        fprintf(myfile,'\n ');
-    end
-end
-%%%%Puncture Alignment Table
-for ii=1:50
-    for jj=1:16
-        fprintf(myfile,'%d ',lookup_t.p_vari_lt(ii,jj));
-    end
-    fprintf(myfile,'\n ');
-end
-fclose("all");
-%% Channel Quantization Part
-%%Line 1: Partition Size
-%%Line 2->Simulation Nnum
-%%Line 3->end: Parition Format-> Eb/N0 quan.....
-% load('R05-E024-T16-0');
-% myfile=fopen('Channel_Quantization.txt','wb');
-% fprintf(myfile,"%d \n",2000);
-% fprintf(myfile,"%d \n",13);
-% EbNo=1.6;
-% for index=1
-%     fprintf(myfile,"%d ",EbNo);
-%     ProbConTY=ChannelCluster(index).ProbConTY;
-%     for ii=1:2000
-%         fprintf(myfile,"%d ",find(ProbConTY(:,ii)));
+%  load('Chinn_lookuptable_067_19');
+%  myfile=fopen('LT-Chinn-067-19.txt','wb');
+% % %%%Line1: cardinality
+% % %%%Line2: Max Iteration
+% % %%%Line3: Max Vari Degree
+% % %%%Line4: Max Chec Degree
+% % %%%Check Node Lookup Table
+% % %%%Variable Node Lookup Table
+% % %%%Check Node Message Alignment Table
+% % %%%Variable Node Message Alignment Table
+% % %%%Puncture Alignment Table
+% fprintf(myfile,"%d \n",lookup_t.T);
+% fprintf(myfile,"%d \n",lookup_t.MaxIter);
+% fprintf(myfile,"%d \n",lookup_t.dv_max);
+% fprintf(myfile,"%d \n",lookup_t.dc_max);
+% %%check lookup table 
+% for ii=1:lookup_t.MaxIter
+%     for jj=1:lookup_t.dc_max-2
+%         cur_lt=lookup_t.check_lt{ii,jj};
+%         for kk=1:lookup_t.T
+%             for hh=1:lookup_t.T
+%                 fprintf(myfile,"%d ",cur_lt(kk,hh));
+%             end
+%             fprintf(myfile,"\n");
+%         end
 %     end
-%     fprintf(myfile,"\n",find(ProbConTY(:,ii)));
-%     EbNo=EbNo+0.2;
 % end
-% fclose('all');
+% %%variable lookup table
+% for ii=1:lookup_t.MaxIter
+%     for jj=1:lookup_t.dv_max
+%         cur_lt=lookup_t.vari_lt{ii,jj};
+%         for kk=1:lookup_t.T
+%             for hh=1:lookup_t.T
+%                 fprintf(myfile,"%d ",cur_lt(kk,hh));
+%             end
+%             fprintf(myfile,"\n");
+%         end
+%     end
+% end
+% %%%check alignment table 
+% for ii=1:50
+%     for jj=1:length(lookup_t.check_distri_vec(1,:))
+%         for kk=1:16
+%             fprintf(myfile,'%d ',lookup_t.check_node_transform(jj,kk,ii));
+%         end
+%         fprintf(myfile,'\n ');
+%     end
+% end
+% %%%Variable Message Alignment Table
+% for ii=1:50
+%     for jj=1:length(lookup_t.vari_distri_vec(1,:))
+%         for kk=1:16
+%             fprintf(myfile,'%d ',lookup_t.vari_node_transform(jj,kk,ii));
+%         end
+%         fprintf(myfile,'\n ');
+%     end
+% end
+% %%%%Puncture Alignment Table
+% for ii=1:50
+%     for jj=1:16
+%         fprintf(myfile,'%d ',lookup_t.p_vari_lt(ii,jj));
+%     end
+%     fprintf(myfile,'\n ');
+% end
+% fclose("all");
+%% Channel Quantization Part
+% % Line 1: Partition Size
+% % Line 2->Simulation Nnum
+% % Line 3->end: Parition Format-> Eb/N0 quan.....
+load('R067-E32t34-T16-0');
+myfile=fopen('Channel_Quantization.txt','wb');
+fprintf(myfile,"%d \n",2000);
+fprintf(myfile,"%d \n",2);
+EbNo=3.2;
+for index=1:2
+    fprintf(myfile,"%d ",EbNo);
+    ProbConTY=ChannelCluster(index).ProbConTY;
+    for ii=1:2000
+        fprintf(myfile,"%d ",find(ProbConTY(:,ii)));
+    end
+    fprintf(myfile,"\n",find(ProbConTY(:,ii)));
+    EbNo=EbNo+0.2;
+end
+fclose('all');
 %% new H matrix
 % load('Margulis2640');
 % H_Class=H_Analyzer(H,0,0);
