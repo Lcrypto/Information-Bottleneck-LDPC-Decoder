@@ -8,21 +8,10 @@ Obsize=SizeY;
 OptimalCluster=struct('Partition',{zeros(1,SizeT)},'ProbConTY',{zeros(SizeT,SizeY)},...
     'ProbJoinXT',{zeros(SizeX,SizeT)},'ProbConXT',{zeros(SizeX,SizeT)},'ProbT',{(zeros(1,SizeT))},'MI',0,'LLR',zeros(SizeT,1));
 ProbY=(ProbJoinXY(1,:)+ProbJoinXY(2,:));
-LLR0=sum(find(LLR_Cal(ProbJoinXY)==0));
 for RunNum=1:MaxRun
     %% Generating the first Random Allocation
-    %%%test
-    if(rem(Obsize,2)==1)
-        c=1;
-    end
-    %%%
-    if LLR0==0
-        A=RIFS(Obsize/2,T/2);
-        final_boundary=T/2-1;
-    else
-        A=[RIFS(Obsize/2-1,T/2-1) 1];
-        final_boundary=T/2-2;
-    end
+    A=[RIFS(Obsize/2-1,T/2-1) 1];
+    final_boundary=T/2-2;
     RandomCls=[A fliplr(A)];    %First Random Clustering
     ProbConTY=zeros(T,Obsize);
     Sum=0;
